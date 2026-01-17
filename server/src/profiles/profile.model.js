@@ -20,6 +20,58 @@ const ProfileSchema = new mongoose.Schema(
 
     skills: [String],
     experienceYears: Number,
+
+    education: [
+      {
+        school: { type: String, required: true },
+        degree: String,
+        fieldOfStudy: String,
+        startDate: Date,
+        endDate: Date,
+        description: String,
+      },
+    ],
+
+    experience: [
+      {
+        company: { type: String, required: true },
+        position: { type: String, required: true },
+        location: String,
+        startDate: Date,
+        endDate: Date,
+        current: { type: Boolean, default: false },
+        description: String,
+      },
+    ],
+
+    projects: [
+      {
+        title: { type: String, required: true },
+        role: String,
+        startDate: Date,
+        endDate: Date,
+        description: String,
+        url: String,
+        technologies: [String],
+      },
+    ],
+
+    certifications: [
+      {
+        name: { type: String, required: true },
+        issuer: String,
+        issueDate: Date,
+        expirationDate: Date,
+        url: String,
+      },
+    ],
+
+    socialLinks: {
+      linkedin: String,
+      github: String,
+      website: String,
+      portfolio: String
+    }
   },
   { timestamps: true },
 );

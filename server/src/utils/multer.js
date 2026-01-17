@@ -1,4 +1,3 @@
-import { storage as cloudinaryStorage } from "../config/cloudinary.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -37,13 +36,17 @@ const fileFilter = (req, file, cb) => {
 export const uploadCV = multer({
   storage: diskStorage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
 });
 
 const avatarDir = "uploads/avatars";
+const imageDir = "uploads/images";
 
 if (!fs.existsSync(avatarDir)) {
   fs.mkdirSync(avatarDir, { recursive: true });
+}
+if (!fs.existsSync(imageDir)) {
+  fs.mkdirSync(imageDir, { recursive: true });
 }
 
 const avatarStorage = multer.diskStorage({
@@ -57,9 +60,34 @@ const avatarStorage = multer.diskStorage({
   },
 });
 
+const imageStorage = multer.diskStorage({
+  destination(req, file, cb) {
+    cb(null, imageDir);
+  },
+  filename(req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const name = `img-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, name);
+  },
+});
+
+
+
+export const uploadImage = multer({
+  storage: imageStorage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === "image/png" || file.mimetype === "image/jpeg" || file.mimetype === "image/jpg" || file.mimetype === "image/webp") {
+      cb(null, true);
+    } else {
+      cb(new Error("Only .png, .jpg, .jpeg and .webp format allowed!"));
+    }
+  },
+});
+
 export const uploadAvatar = multer({
   storage: avatarStorage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
   fileFilter: (req, file, cb) => {
     if (file.mimetype === "image/png" || file.mimetype === "image/jpeg" || file.mimetype === "image/jpg") {
       cb(null, true);
@@ -88,7 +116,7 @@ const thumbnailStorage = multer.diskStorage({
 
 export const uploadJobThumbnail = multer({
   storage: thumbnailStorage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
   fileFilter: (req, file, cb) => {
     if (file.mimetype === "image/png" || file.mimetype === "image/jpeg" || file.mimetype === "image/jpg") {
       cb(null, true);

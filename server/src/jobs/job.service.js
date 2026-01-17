@@ -1,12 +1,16 @@
 import Job from "./job.model.js";
+import slugify from "slugify";
+import mongoose from "mongoose";
 
 export const createJob = async (data, user) => {
   if (!["RECRUITER", "ADMIN"].includes(user.role)) {
     throw new Error("Permission denied");
   }
 
+  const slug = slugify(data.title, { lower: true, strict: true }) + "-" + Date.now();
   return Job.create({
     ...data,
+    slug,
     recruiterId: user.userId,
   });
 };
@@ -49,5 +53,9 @@ export const getJobs = async (query) => {
 };
 
 export const getJobById = async (id) => {
-  return Job.findById(id);
+  if (mongoose.Types.ObjectId.isValid(id)) {
+    const job = await Job.findById(id);
+    if (job) return job;
+  }
+  return Job.findOne({ slug: id });
 };

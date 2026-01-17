@@ -17,7 +17,7 @@ const ApplicationSchema = new mongoose.Schema(
 
     cvType: {
       type: String,
-      enum: ["ONLINE", "UPLOAD"],
+      enum: ["ONLINE", "UPLOAD", "PROFILE"],
       required: true,
     },
 
@@ -52,7 +52,7 @@ const ApplicationSchema = new mongoose.Schema(
     matchingReason: {
       type: String,
     },
-    testId: { type: mongoose.Schema.Types.ObjectId, ref: "CodingTest" },
+    testId: { type: mongoose.Schema.Types.ObjectId, ref: "Challenge" },
     interviewId: { type: mongoose.Schema.Types.ObjectId, ref: "Interview" },
   },
   { timestamps: true },

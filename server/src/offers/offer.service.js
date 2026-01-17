@@ -1,6 +1,6 @@
 import Offer from "./offer.model.js";
 import Application from "../applications/application.model.js";
-import { notify } from "../notifications/notification.service.js";
+import { createNotification } from "../notifications/notification.service.js";
 
 export const createOffer = async (data, user) => {
   if (!["RECRUITER", "ADMIN"].includes(user.role)) {
@@ -29,7 +29,7 @@ export const createOffer = async (data, user) => {
   });
 
   // Send notification AFTER offer created
-  await notify({
+  await createNotification({
     userId: application.candidateId,
     type: "OFFER",
     title: "New Job Offer",

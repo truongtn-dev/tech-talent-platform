@@ -16,9 +16,16 @@ import {
     WindowsOutlined,
     LinkedinFilled,
     BellFilled,
+    EnvironmentOutlined,
+    DollarOutlined,
+    ClockCircleOutlined,
+    ProjectOutlined
 } from "@ant-design/icons";
 import "../styles/landingPage.css";
 import { useEffect, useRef, useState } from "react";
+import jobService from "../modules/jobs/api";
+import { useNavigate } from "react-router-dom";
+import { Tag, Spin, Empty, Card } from "antd"; // Card was not imported before? Check lines.
 
 const { Title, Text } = Typography;
 
@@ -79,6 +86,27 @@ const CATEGORIES = [
 ];
 
 const LandingPage = () => {
+    const navigate = useNavigate();
+    const [jobs, setJobs] = useState([]);
+    const [loadingJobs, setLoadingJobs] = useState(true);
+
+    useEffect(() => {
+        fetchFeaturedJobs();
+    }, []);
+
+    const fetchFeaturedJobs = async () => {
+        try {
+            const data = await jobService.getAllJobs();
+            const allJobs = data.jobs || data || [];
+            // Get top 4 jobs
+            setJobs(allJobs.slice(0, 4));
+        } catch (error) {
+            console.error("Error fetching homepage jobs:", error);
+        } finally {
+            setLoadingJobs(false);
+        }
+    };
+
     return (
         <div className="landing-premium">
             {/* Hero Section */}
@@ -179,6 +207,74 @@ const LandingPage = () => {
                         {[...COMPANIES, ...COMPANIES].map((company, index) => (
                             <div key={index} className="marquee-logo">{company}</div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Featured Jobs Section */}
+            <section style={{ padding: "80px 0", background: "#f8fafc" }}>
+                <div className="container">
+                    <RevealSection>
+                        <div className="section-head-center">
+                            <h2>Featured Opportunities</h2>
+                            <p>Hand-picked jobs from top companies</p>
+                        </div>
+                    </RevealSection>
+
+                    {loadingJobs ? (
+                        <div style={{ textAlign: "center", padding: 40 }}><Spin size="large" /></div>
+                    ) : (
+                        <Row gutter={[24, 24]}>
+                            {jobs.map((job, idx) => (
+                                <Col xs={24} md={12} key={job._id}>
+                                    <RevealSection delay={idx * 0.1}>
+                                        <Card
+                                            hoverable
+                                            className="job-card-landing" // Need to define styles or use style prop
+                                            onClick={() => navigate(`/jobs/${job._id}`)}
+                                            style={{
+                                                borderRadius: 16,
+                                                border: "1px solid #f0f0f0",
+                                                height: "100%",
+                                                overflow: "hidden",
+                                                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)"
+                                            }}
+                                            bodyStyle={{ padding: 24 }}
+                                        >
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                                                <div>
+                                                    <Title level={4} style={{ marginBottom: 4, fontSize: 18 }}>{job.title}</Title>
+                                                    <Text type="secondary" style={{ color: "#ED1B2F", fontWeight: 600 }}>{job.company}</Text>
+                                                </div>
+                                                {job.thumbnail && (
+                                                    <Avatar shape="square" size={48} src={job.thumbnail} />
+                                                )}
+                                            </div>
+
+                                            <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
+                                                <Text type="secondary" style={{ fontSize: 13 }}><EnvironmentOutlined /> {job.location || "Remote"}</Text>
+                                                <Text type="secondary" style={{ fontSize: 13 }}><DollarOutlined /> {job.salary}</Text>
+                                                <Text type="secondary" style={{ fontSize: 13 }}><ProjectOutlined /> {job.type?.replace("_", " ")}</Text>
+                                            </div>
+
+                                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                                {job.skills?.slice(0, 3).map((skill, i) => (
+                                                    <Tag key={i} color="blue" style={{ borderRadius: 100 }}>{skill}</Tag>
+                                                ))}
+                                            </div>
+                                        </Card>
+                                    </RevealSection>
+                                </Col>
+                            ))}
+                        </Row>
+                    )}
+
+                    <div style={{ textAlign: "center", marginTop: 40 }}>
+                        <Link to="/jobs">
+                            <Button size="large" type="default" style={{ height: 48, padding: "0 40px", borderRadius: 100, border: '1px solid #d9d9d9' }}>
+                                View All Jobs <ArrowRightOutlined />
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </section>

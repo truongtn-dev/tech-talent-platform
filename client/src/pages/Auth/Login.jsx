@@ -23,7 +23,9 @@ const Login = () => {
             if (data.user.role === "ADMIN") {
                 navigate("/admin/dashboard");
             } else if (data.user.role === "RECRUITER") {
-                navigate("/jobs/manage");
+                navigate("/recruiter/dashboard");
+            } else if (data.user.role === "INTERVIEWER") {
+                navigate("/interviewer/dashboard");
             } else {
                 navigate("/");
             }

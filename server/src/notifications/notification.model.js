@@ -8,23 +8,17 @@ const NotificationSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-
-    type: {
-      type: String,
-      enum: ["APPLICATION", "TEST", "INTERVIEW", "OFFER", "SYSTEM"],
-      index: true,
-    },
-
     title: { type: String, required: true },
     message: { type: String, required: true },
-
-    isRead: {
-      type: Boolean,
-      default: false,
-      index: true,
+    type: {
+      type: String,
+      enum: ["NEW_APPLICATION", "TEST_SUBMITTED", "INTERVIEW_SCHEDULED", "INTERVIEW_EVALUATED", "GENERAL"],
+      default: "GENERAL"
     },
+    link: { type: String }, // Optional link to redirect user
+    isRead: { type: Boolean, default: false },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default mongoose.model("Notification", NotificationSchema);

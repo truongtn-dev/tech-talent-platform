@@ -11,7 +11,7 @@ const AdminLayout = ({ children, title }) => {
     const { user } = useAuth();
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
+        <Layout className="admin-layout-wrapper" style={{ minHeight: '100vh' }}>
             <AdminSidebar
                 collapsed={collapsed}
                 setCollapsed={setCollapsed}

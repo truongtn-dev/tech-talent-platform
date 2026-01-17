@@ -1,348 +1,467 @@
 /* ==========================================================================
-   ADMIN PANEL - CLEAN PROFESSIONAL LIGHT THEME
-   Consistent with Global Design System
+   ADMIN PANEL - PREMIUM LIGHT THEME
+   Scoped to .admin-layout-wrapper to prevent global leakage
    ========================================================================== */
 
+/* Removed global font import and global body styles */
+
 :root {
-  --admin-sidebar-width: 260px;
-  --admin-header-height: 72px;
-}
-
-/* Force consistent font family throughout */
-* {
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif !important;
-}
-
-/* Layout Background - Light Gray */
-.ant-layout {
-  background: #f7f7f7 !important;
+  --primary-color: #ED1B2F;
+  --secondary-color: #1890ff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --bg-color: #f3f4f6;
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --header-height: 72px;
+  --sidebar-width: 260px;
 }
 
 /* ============================================
-   SIDEBAR
+   ADMIN WRAPPER SCOPE
    ============================================ */
-.admin-sidebar {
-  background: #ffffff !important;
-  border-right: 1px solid #e8e8e8;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
-  z-index: 1001;
-}
-
-.admin-sidebar .ant-layout-sider-trigger {
-  background: #f5f5f5 !important;
-  color: #555 !important;
-  border-top: 1px solid #e8e8e8;
-}
-
-.admin-sidebar .ant-menu {
-  background: transparent !important;
-  border-inline-end: none !important;
-  padding: 16px 12px;
-}
-
-.admin-sidebar .ant-menu-item {
-  margin-bottom: 4px !important;
-  border-radius: 8px !important;
-  color: #555 !important;
-  font-weight: 500;
-  font-size: 15px;
-  height: 44px;
-  line-height: 44px;
-  transition: all 0.2s ease;
-}
-
-.admin-sidebar .ant-menu-item .anticon {
-  font-size: 18px;
-}
-
-.admin-sidebar .ant-menu-item:hover {
-  color: #ed1b2f !important;
-  background: #fff5f5 !important;
-}
-
-.admin-sidebar .ant-menu-item-selected {
-  background: #ffe8ea !important;
-  color: #ed1b2f !important;
-  font-weight: 600;
-}
-
-.admin-sidebar .ant-menu-item-selected .anticon {
-  color: #ed1b2f !important;
-}
-
-/* Logout Button - Make it PROMINENT */
-.admin-sidebar .ant-menu-item-danger {
-  color: #ed1b2f !important;
-  background: #fff1f0 !important;
-  border: 1px solid #ffccc7 !important;
-  font-weight: 600;
-  margin-top: 8px;
-}
-
-.admin-sidebar .ant-menu-item-danger:hover {
-  background: #ed1b2f !important;
-  color: #ffffff !important;
-}
-
-.admin-sidebar .ant-menu-item-danger .anticon {
-  color: #ed1b2f !important;
-  background: transparent !important;
-}
-
-.admin-sidebar .ant-menu-item-danger:hover .anticon {
-  color: #ffffff !important;
+.admin-layout-wrapper {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  /* Restore default font */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 /* ============================================
-   HEADER
+   HEADINGS - SCOPED
    ============================================ */
-.admin-header {
+.admin-layout-wrapper h1,
+.admin-layout-wrapper h2,
+.admin-layout-wrapper h3,
+.admin-layout-wrapper h4,
+.admin-layout-wrapper h5,
+.admin-layout-wrapper h6,
+.admin-layout-wrapper .ant-typography h1,
+.admin-layout-wrapper .ant-typography h2,
+.admin-layout-wrapper .ant-typography h3,
+.admin-layout-wrapper .ant-typography h4,
+.admin-layout-wrapper .ant-typography h5,
+.admin-layout-wrapper .ant-typography h6 {
+  font-weight: 700 !important;
+}
+
+.admin-layout-wrapper .ant-card-head-title,
+.admin-layout-wrapper .ant-statistic-title {
+  font-weight: 600 !important;
+}
+
+/* ============================================
+   LAYOUT - SCOPED
+   ============================================ */
+.admin-layout-wrapper.ant-layout {
+  background: var(--bg-color) !important;
+}
+
+.admin-layout-wrapper .ant-layout-sider {
   background: #ffffff !important;
-  border-bottom: 1px solid #e8e8e8;
+  box-shadow: 4px 0 24px 0 rgba(0, 0, 0, 0.02);
+  border-right: 1px solid #e5e7eb;
+}
+
+.admin-layout-wrapper .ant-layout-content {
+  padding: 32px !important;
+  background: transparent;
+}
+
+/* ============================================
+   HEADER - SCOPED
+   ============================================ */
+.admin-layout-wrapper .admin-header {
+  background: #ffffff !important;
   padding: 0 32px !important;
-  height: var(--admin-header-height) !important;
-  line-height: var(--admin-header-height) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  height: var(--header-height) !important;
+  line-height: var(--header-height) !important;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 100;
 }
 
-.admin-header .ant-btn {
-  font-size: 18px;
+.admin-layout-wrapper .admin-header .nav-icon {
+  font-size: 20px;
+  color: var(--text-secondary);
+  transition: color 0.2s;
 }
 
-.admin-header .ant-typography {
-  color: #111;
-  font-weight: 600;
-}
-
-/* ============================================
-   CONTENT AREA
-   ============================================ */
-.ant-layout-content {
-  padding: 32px !important;
-  min-height: calc(100vh - var(--admin-header-height));
-  background: transparent;
-}
-
-/* Page Title */
-.ant-layout-content h2 {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 24px;
+.admin-layout-wrapper .admin-header .nav-icon:hover {
+  color: var(--primary-color);
 }
 
 /* ============================================
-   CARDS
+   CARDS & CONTAINERS - SCOPED
    ============================================ */
-.admin-card {
-  background: #ffffff !important;
-  border: 1px solid #e8e8e8 !important;
-  border-radius: 12px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-  margin-bottom: 24px;
+.admin-layout-wrapper .admin-card {
+  border-radius: 16px !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: var(--card-shadow) !important;
+  background: #ffffff;
+  overflow: hidden;
 }
 
-.admin-card .ant-card-head {
-  border-bottom: 1px solid #f0f0f0 !important;
+.admin-layout-wrapper .admin-card .ant-card-head {
+  border-bottom: 1px solid #f3f4f6 !important;
   padding: 20px 24px;
-}
-
-.admin-card .ant-card-head-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  color: #111;
 }
 
-.admin-card .ant-card-body {
+.admin-layout-wrapper .admin-card .ant-card-body {
   padding: 24px;
 }
 
 /* ============================================
-   STATISTICS CARDS
+   DASHBOARD PREMIUM STYLES
    ============================================ */
-.stat-card {
-  padding: 28px;
+.admin-layout-wrapper .gradient-card {
+  padding: 24px;
+  border-radius: 16px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.admin-layout-wrapper .gradient-card:hover {
+  transform: translateY(-5px);
+}
+
+.admin-layout-wrapper .gradient-card.purple {
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+}
+
+.admin-layout-wrapper .gradient-card.pink {
+  background: linear-gradient(135deg, #fd79a8 0%, #fab1a0 100%);
+}
+
+.admin-layout-wrapper .gradient-card.blue {
+  background: linear-gradient(135deg, #00cec9 0%, #81ecec 100%);
+}
+
+.admin-layout-wrapper .gradient-card .stat-label {
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.admin-layout-wrapper .gradient-card .stat-value {
+  font-size: 42px;
+  font-weight: 800;
+  margin: 10px 0;
+}
+
+.admin-layout-wrapper .gradient-card .stat-icon-bg {
+  position: absolute;
+  right: -10px;
+  top: 10px;
+  font-size: 80px;
+  opacity: 0.2;
+}
+
+.admin-layout-wrapper .circle-stat-card {
   background: #ffffff;
-  border: 1px solid #e8e8e8;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  height: 100%;
+  padding: 24px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
-.stat-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  transform: translateY(-4px);
-  border-color: #ed1b2f;
-}
-
-.stat-icon {
+.admin-layout-wrapper .circle-stat-icon {
   width: 56px;
   height: 56px;
-  border-radius: 12px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  margin-bottom: 16px;
 }
 
-.ant-statistic-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #666;
-  margin-bottom: 8px;
+.admin-layout-wrapper .circle-stat-icon.red {
+  background: #fff1f0;
+  color: #ff4d4f;
 }
 
-.ant-statistic-content {
-  font-size: 32px;
-  font-weight: 700;
-  color: #111;
+.admin-layout-wrapper .circle-stat-icon.green {
+  background: #f6ffed;
+  color: #52c41a;
 }
 
 /* ============================================
-   TABLES
+   TABLES - SCOPED
    ============================================ */
-.admin-table .ant-table {
+.admin-layout-wrapper .admin-table .ant-table {
   background: transparent !important;
 }
 
-.admin-table .ant-table-thead > tr > th {
-  background: #fafafa !important;
-  color: #666 !important;
+.admin-layout-wrapper .admin-table .ant-table-thead>tr>th {
+  background: #f9fafb !important;
+  color: var(--text-secondary) !important;
   font-weight: 600 !important;
   font-size: 13px !important;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid #e8e8e8 !important;
-  padding: 16px !important;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 16px 24px !important;
 }
 
-.admin-table .ant-table-tbody > tr > td {
-  padding: 16px !important;
-  border-bottom: 1px solid #f0f0f0 !important;
-  font-size: 15px;
+.admin-layout-wrapper .admin-table .ant-table-tbody>tr>td {
+  padding: 20px 24px !important;
+  font-size: 14px;
+  color: var(--text-primary);
+  border-bottom: 1px solid #f3f4f6 !important;
 }
 
-.admin-table .ant-table-row:hover > td {
-  background: #fafafa !important;
+.admin-layout-wrapper .admin-table .ant-table-tbody>tr:hover>td {
+  background: #f9fafb !important;
 }
 
 /* ============================================
-   FORMS & INPUTS
+   INPUTS & BUTTONS - SCOPED
    ============================================ */
-.ant-input,
-.ant-select-selector,
-.ant-input-affix-wrapper {
+/* Only target inputs inside admin wrapper */
+.admin-layout-wrapper .ant-input,
+.admin-layout-wrapper .ant-input-password {
   border-radius: 8px !important;
-  border-color: #d9d9d9 !important;
-  font-size: 15px !important;
+  padding: 8px 12px !important;
+  border-color: #e5e7eb !important;
+  transition: all 0.2s;
 }
 
-.ant-input:focus,
-.ant-input-focused,
-.ant-select-focused .ant-select-selector,
-.ant-input-affix-wrapper:focus,
-.ant-input-affix-wrapper-focused {
-  border-color: #ed1b2f !important;
+.admin-layout-wrapper .ant-input:hover,
+.admin-layout-wrapper .ant-input-password:hover {
+  border-color: #ED1B2F !important;
+}
+
+.admin-layout-wrapper .ant-input:focus,
+.admin-layout-wrapper .ant-input-focused,
+.admin-layout-wrapper .ant-input-password:focus,
+.admin-layout-wrapper .ant-input-password-focused {
+  border-color: #ED1B2F !important;
+  box-shadow: 0 0 0 3px rgba(237, 27, 47, 0.1) !important;
+}
+
+.admin-layout-wrapper .ant-btn {
+  border-radius: 8px !important;
+  height: 40px !important;
+  font-weight: 600 !important;
+}
+
+.admin-layout-wrapper .ant-btn-primary {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 4px 6px rgba(237, 27, 47, 0.2);
+}
+
+.admin-layout-wrapper .ant-btn-primary:hover {
+  background: #c41223 !important;
+  border-color: #c41223 !important;
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   TAGS & STATUS - SCOPED
+   ============================================ */
+.admin-layout-wrapper .ant-tag {
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border: none;
+  font-size: 12px;
+}
+
+/* ============================================
+   PAGINATION OVERRIDES (Force Red) - SCOPED
+   Only apply when inside admin-layout-wrapper
+   ============================================ */
+.admin-layout-wrapper .ant-pagination .ant-pagination-item-active,
+.admin-layout-wrapper .ant-pagination-item-active {
+  border-color: #ED1B2F !important;
+}
+
+.admin-layout-wrapper .ant-pagination .ant-pagination-item-active a,
+.admin-layout-wrapper .ant-pagination-item-active a {
+  color: #ED1B2F !important;
+}
+
+.admin-layout-wrapper .ant-pagination .ant-pagination-item:hover,
+.admin-layout-wrapper .ant-pagination-item:hover {
+  border-color: #ED1B2F !important;
+}
+
+.admin-layout-wrapper .ant-pagination .ant-pagination-item:hover a,
+.admin-layout-wrapper .ant-pagination-item:hover a {
+  color: #ED1B2F !important;
+}
+
+.admin-layout-wrapper .ant-pagination .ant-pagination-prev:hover .ant-pagination-item-link,
+.admin-layout-wrapper .ant-pagination .ant-pagination-next:hover .ant-pagination-item-link,
+.admin-layout-wrapper .ant-pagination-prev:hover button,
+.admin-layout-wrapper .ant-pagination-next:hover button {
+  border-color: #ED1B2F !important;
+  color: #ED1B2F !important;
+}
+
+/* Custom Search Input Style - Scoped */
+/* Custom Search Input Style - Scoped */
+.admin-layout-wrapper .custom-search-input.ant-input-affix-wrapper {
+  padding: 0 !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  overflow: hidden;
+  border-radius: 6px !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.admin-layout-wrapper .custom-search-input .ant-input-prefix {
+  margin: 0 !important;
+  height: 100% !important;
+  background: #ED1B2F;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 12px !important;
+  color: #fff !important;
+}
+
+.admin-layout-wrapper .custom-search-input .ant-input-prefix .anticon {
+  color: #fff !important;
+  font-size: 16px !important;
+}
+
+.admin-layout-wrapper .custom-search-input .ant-input {
+  height: 100% !important;
+  padding: 0 12px !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+}
+
+.admin-layout-wrapper .ant-input-affix-wrapper:hover,
+.admin-layout-wrapper .ant-input-affix-wrapper:focus,
+.admin-layout-wrapper .ant-input-affix-wrapper-focused {
+  border-color: #ED1B2F !important;
+  box-shadow: 0 0 0 3px rgba(237, 27, 47, 0.1) !important;
+}
+
+.admin-layout-wrapper .ant-input-affix-wrapper:focus-within {
   box-shadow: 0 0 0 2px rgba(237, 27, 47, 0.1) !important;
 }
 
-.ant-form-item-label > label {
+.admin-layout-wrapper .ant-select:not(.ant-select-disabled):not(.ant-select-customize-input):hover .ant-select-selector {
+  border-color: #ED1B2F !important;
+}
+
+.admin-layout-wrapper .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  border-color: #ED1B2F !important;
+  box-shadow: 0 0 0 2px rgba(237, 27, 47, 0.1) !important;
+}
+
+.admin-layout-wrapper .ant-picker:hover,
+.admin-layout-wrapper .ant-picker-focused {
+  border-color: #ED1B2F !important;
+  box-shadow: 0 0 0 2px rgba(237, 27, 47, 0.1) !important;
+}
+
+/* Fix for Select dropdown selection highlight */
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: #fff1f0 !important;
+  color: #ED1B2F !important;
   font-weight: 600;
-  font-size: 14px;
-  color: #333;
 }
 
 /* ============================================
-   BUTTONS
+   ACTION BUTTONS - SCOPED
    ============================================ */
-.ant-btn {
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 15px;
-  height: 40px;
-  padding: 0 20px;
+.admin-layout-wrapper .admin-action-btn {
+  border-radius: 6px !important;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
 }
 
-.ant-btn-primary {
-  background-color: #ed1b2f !important;
-  border-color: #ed1b2f !important;
-  box-shadow: 0 2px 4px rgba(237, 27, 47, 0.2);
+.admin-layout-wrapper .admin-action-btn:hover {
+  border-color: #ED1B2F !important;
+  color: #ED1B2F !important;
+  background: #fff1f0;
+  transform: translateY(-1px);
 }
 
-.ant-btn-primary:hover {
+.admin-layout-wrapper .admin-action-btn.ant-btn-primary {
+  background-color: #ED1B2F !important;
+  border-color: #ED1B2F !important;
+  color: #fff !important;
+}
+
+.admin-layout-wrapper .admin-action-btn.ant-btn-primary:hover {
   background-color: #c41223 !important;
   border-color: #c41223 !important;
-  box-shadow: 0 4px 8px rgba(237, 27, 47, 0.3);
 }
 
-.ant-btn-default:hover {
-  color: #ed1b2f !important;
-  border-color: #ed1b2f !important;
+/* Specific Danger style enhancement */
+.admin-layout-wrapper .admin-action-btn.ant-btn-dangerous {
+  border-color: #ff4d4f !important;
+  color: #ff4d4f !important;
 }
 
-/* Danger Button */
-.ant-btn-dangerous {
-  color: #ed1b2f;
-  border-color: #ed1b2f;
-}
-
-.ant-btn-dangerous:hover {
-  color: #ffffff !important;
-  background-color: #ed1b2f !important;
-  border-color: #ed1b2f !important;
+.admin-layout-wrapper .admin-action-btn.ant-btn-dangerous:hover {
+  background-color: #ff4d4f !important;
+  color: #fff !important;
 }
 
 /* ============================================
-   TAGS
+   ADMIN TABS - PREMIUM STYLES
    ============================================ */
-.ant-tag {
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 12px;
-  padding: 4px 12px;
-  border: none;
+.admin-layout-wrapper .admin-tabs .ant-tabs-nav {
+  margin-bottom: 24px !important;
 }
 
-/* ============================================
-   MODALS
-   ============================================ */
-.ant-modal-header {
-  border-bottom: 1px solid #f0f0f0;
-  padding: 20px 24px;
+.admin-layout-wrapper .admin-tabs .ant-tabs-tab {
+  padding: 12px 0 !important;
+  margin-right: 32px !important;
+  font-weight: 500;
+  transition: all 0.3s;
 }
 
-.ant-modal-title {
-  font-size: 20px;
+.admin-layout-wrapper .admin-tabs .ant-tabs-tab:hover {
+  color: #ED1B2F !important;
+}
+
+.admin-layout-wrapper .admin-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #ED1B2F !important;
   font-weight: 700;
-  color: #111;
 }
 
-.ant-modal-body {
-  padding: 24px;
+.admin-layout-wrapper .admin-tabs .ant-tabs-ink-bar {
+  background: #ED1B2F !important;
+  height: 3px !important;
 }
 
-.ant-modal-footer {
-  border-top: 1px solid #f0f0f0;
-  padding: 16px 24px;
-}
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
-@media (max-width: 768px) {
-  .ant-layout-content {
-    padding: 16px !important;
-  }
-
-  .admin-header {
-    padding: 0 16px !important;
-  }
+.admin-layout-wrapper .admin-tabs .ant-table-thead>tr>th {
+  background: #f9fafb !important;
+  font-size: 12px !important;
+  padding: 12px 16px !important;
 }

@@ -1,8 +1,7 @@
-import { Layout, Button, Avatar, Dropdown, Space, Typography } from "antd";
+import { Layout, Button, Avatar, Dropdown, Space, Typography, Badge } from "antd";
 import {
-    MenuFoldOutlined,
     MenuUnfoldOutlined,
-    UserOutlined,
+    MenuFoldOutlined,
     BellOutlined
 } from "@ant-design/icons";
 
@@ -10,47 +9,63 @@ const { Header } = Layout;
 const { Text } = Typography;
 
 const AdminHeader = ({ collapsed, setCollapsed, user }) => {
+    // Simplified menu - removed Profile/Settings as requested
     const userMenu = {
         items: [
-            { key: 'profile', label: 'My Profile' },
-            { key: 'settings', label: 'Account Settings' },
-            { type: 'divider' },
-            { key: 'logout', label: 'Logout', danger: true },
+            {
+                key: 'logout',
+                label: 'Logout',
+                danger: true,
+                onClick: () => {
+                    // Handle logout logic here or pass logout function as prop
+                    localStorage.removeItem("token");
+                    window.location.href = "/login";
+                }
+            },
         ]
     };
 
     return (
-        <Header className="admin-header" style={{ height: '72px', lineHeight: '72px' }}>
+        <Header className="admin-header">
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Button
                     type="text"
                     icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                     onClick={() => setCollapsed(!collapsed)}
-                    style={{ fontSize: '18px', width: 48, height: 48 }}
+                    style={{ fontSize: '18px' }}
                 />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                <Button
-                    type="text"
-                    icon={<BellOutlined style={{ fontSize: '18px' }} />}
-                    shape="circle"
-                    style={{ width: 40, height: 40 }}
-                />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                <Badge count={2} dot offset={[-4, 4]}>
+                    <Button
+                        type="text"
+                        icon={<BellOutlined style={{ fontSize: 20, color: '#6b7280' }} />}
+                        shape="circle"
+                    />
+                </Badge>
 
-                <Dropdown menu={userMenu} trigger={['click']}>
-                    <Space style={{ cursor: 'pointer', padding: '8px 12px', borderRadius: '8px', transition: 'all 0.2s' }}>
-                        <Avatar src={user?.avatar || null} icon={<UserOutlined />} size={40} />
-                        <div style={{ lineHeight: 1.3 }}>
-                            <Text strong style={{ display: 'block', fontSize: '15px' }}>
-                                {user?.email?.split('@')[0]}
-                            </Text>
-                            <Text type="secondary" style={{ fontSize: '12px', fontWeight: 600 }}>
-                                Administrator
-                            </Text>
+                <div style={{ height: 24, width: 1, background: '#e5e7eb' }} />
+
+                <Space style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ textAlign: 'right', lineHeight: 1.3 }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#111' }}>
+                            {user?.profile?.fullName || user?.email?.split('@')[0] || 'Admin System'}
                         </div>
-                    </Space>
-                </Dropdown>
+                        <div style={{ fontSize: 12, color: '#6b7280' }}>Administrator</div>
+                    </div>
+                    <Avatar
+                        src={user?.avatar}
+                        size={42}
+                        style={{
+                            border: '2px solid #e5e7eb',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            background: '#1890ff'
+                        }}
+                    >
+                        {user?.email?.[0]?.toUpperCase() || 'A'}
+                    </Avatar>
+                </Space>
             </div>
         </Header>
     );

@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { Layout, Menu, Button, Drawer, Dropdown, Avatar, Badge, Space } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useSocket } from "../../context/SocketContext";
 import "../../styles/header.css";
-import { BellOutlined, UserOutlined, MenuOutlined, LogoutOutlined } from "@ant-design/icons";
+import { BellOutlined, UserOutlined, MenuOutlined, LogoutOutlined, CheckOutlined } from "@ant-design/icons";
 
 const { Header: AntHeader } = Layout;
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const { unreadCount, notifications, markAllRead } = useSocket();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -21,6 +23,8 @@ const Header = () => {
         return { text: "Recruiter", color: "#1890ff" }; // Blue
       case "ADMIN":
         return { text: "Admin", color: "#f5222d" }; // Red
+      case "INTERVIEWER":
+        return { text: "Interviewer", color: "#10B981" }; // Emerald
       default:
         return { text: "User", color: "#d9d9d9" }; // Grey
     }
@@ -40,12 +44,12 @@ const Header = () => {
     }
 
     if (user?.role === "CANDIDATE") {
+      // User requested to keep only standard menu items for Candidate
       const userItems = [
         { key: "/jobs", label: <Link to="/jobs">Jobs</Link> },
-        {
-          key: "/applications",
-          label: <Link to="/applications">My Applications</Link>,
-        },
+        { key: "/blog", label: <Link to="/blog">Blog</Link> },
+        { key: "/about", label: <Link to="/about">About</Link> },
+        { key: "/contact", label: <Link to="/contact">Contact</Link> },
       ];
       return userItems;
     }
@@ -53,18 +57,39 @@ const Header = () => {
     if (user?.role === "RECRUITER") {
       return [
         {
+          key: "/recruiter/dashboard",
+          label: <Link to="/recruiter/dashboard">Dashboard</Link>,
+        },
+        {
           key: "/recruiter/jobs",
-          label: <Link to="/recruiter/jobs">Dashboard</Link>,
+          label: <Link to="/recruiter/jobs">Manage Jobs</Link>,
         },
         {
           key: "/recruiter/applications",
-          label: <Link to="/recruiter/applications">Candidates</Link>,
+          label: <Link to="/recruiter/applications">AI Screening</Link>,
         },
       ];
     }
 
     if (user?.role === "ADMIN") {
       return [{ key: "/admin/dashboard", label: <Link to="/admin/dashboard">Admin Panel</Link> }];
+    }
+
+    if (user?.role === "INTERVIEWER") {
+      return [
+        {
+          key: "/interviewer/dashboard",
+          label: <Link to="/interviewer/dashboard">Dashboard</Link>,
+        },
+        {
+          key: "/interviewer/questions",
+          label: <Link to="/interviewer/questions">Question Bank</Link>,
+        },
+        {
+          key: "/interviewer/sessions",
+          label: <Link to="/interviewer/sessions">Interviews</Link>,
+        }
+      ];
     }
 
     return items;
@@ -74,6 +99,18 @@ const Header = () => {
     {
       key: "profile",
       label: <Link to="/profile">Profile</Link>,
+    },
+    {
+      key: "applications",
+      label: <Link to="/my-applications">My Applications</Link>,
+    },
+    {
+      key: "saved-jobs",
+      label: <Link to="/saved-jobs">Saved Jobs</Link>,
+    },
+    {
+      key: "cv-builder",
+      label: <Link to="/cv-builder">CV Builder</Link>,
     },
     {
       key: "change-password",
@@ -149,13 +186,42 @@ const Header = () => {
         <div className="header-right">
           {user ? (
             <div className="user-actions">
-              <Badge count={3} size="small" className="notification-badge">
-                <Button
-                  type="text"
-                  icon={<BellOutlined />}
-                  className="icon-button"
-                />
-              </Badge>
+              <Dropdown
+                trigger={['click']}
+                placement="bottomRight"
+                dropdownRender={() => (
+                  <div className="notification-dropdown">
+                    <div className="notification-header">
+                      <span>Notifications</span>
+                      <Button type="link" size="small" onClick={markAllRead}>Mark all as read</Button>
+                    </div>
+                    <div className="notification-list">
+                      {notifications.length > 0 ? (
+                        notifications.map(n => (
+                          <div key={n._id} className={`notification-item ${n.isRead ? 'read' : 'unread'}`}>
+                            <div className="notification-content">
+                              <div className="notification-title">{n.title}</div>
+                              <div className="notification-message">{n.message}</div>
+                              <div className="notification-time">{new Date(n.createdAt).toLocaleTimeString()}</div>
+                            </div>
+                            {!n.isRead && <div className="unread-dot" />}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="notification-empty">No notifications</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              >
+                <Badge count={unreadCount} size="small" className="notification-badge">
+                  <Button
+                    type="text"
+                    icon={<BellOutlined />}
+                    className="icon-button"
+                  />
+                </Badge>
+              </Dropdown>
 
               <Dropdown
                 menu={{ items: userMenuItems }}
@@ -220,7 +286,7 @@ const Header = () => {
           placement="right"
           onClose={() => setMobileMenuOpen(false)}
           open={mobileMenuOpen}
-          width={280}
+          size="default"
           className="mobile-drawer-custom"
         >
           <Menu

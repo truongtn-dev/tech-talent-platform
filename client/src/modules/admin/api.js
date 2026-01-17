@@ -27,6 +27,10 @@ const adminService = {
         return await http.delete(`/admin/users/${userId}`);
     },
 
+    getApplications: async () => {
+        return await http.get("/admin/applications");
+    },
+
     // Job Moderation
     getAllJobs: async () => {
         return await http.get("/admin/jobs");
@@ -38,6 +42,22 @@ const adminService = {
 
     hideJob: async (jobId) => {
         return await http.put(`/admin/jobs/${jobId}/hide`);
+    },
+
+    createJob: async (data) => {
+        return await http.post(`/admin/jobs`, data);
+    },
+
+    updateJob: async (id, data) => {
+        return await http.put(`/admin/jobs/${id}`, data);
+    },
+
+    deleteJob: async (id) => {
+        return await http.delete(`/admin/jobs/${id}`);
+    },
+
+    getChallenges: async () => {
+        return await http.get("/challenges");
     },
 
     // Blog Management

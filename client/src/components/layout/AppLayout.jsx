@@ -7,13 +7,16 @@ const { Content } = Layout;
 
 const AppLayout = ({ children }) => {
   const location = useLocation();
-  const isAdminPath = location.pathname.startsWith("/admin");
+  const isModulePath =
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/recruiter") ||
+    location.pathname.startsWith("/interviewer");
 
   return (
     <Layout className="app-layout">
-      {!isAdminPath && <Header />}
+      {!isModulePath && <Header />}
       <Content className="app-content">{children}</Content>
-      {!isAdminPath && <Footer />}
+      {!isModulePath && <Footer />}
     </Layout>
   );
 };

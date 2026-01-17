@@ -11,10 +11,12 @@ export const addBookmark = async (jobId, user) => {
     throw new Error("Job not available");
   }
 
-  return Bookmark.create({
-    userId: user.userId,
-    jobId,
-  });
+  // Sử dụng findOneAndUpdate với upsert: true để tránh lỗi duplicate key
+  return Bookmark.findOneAndUpdate(
+    { userId: user.userId, jobId },
+    { userId: user.userId, jobId },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
 };
 
 export const removeBookmark = async (jobId, user) => {
@@ -26,7 +28,7 @@ export const removeBookmark = async (jobId, user) => {
 
 export const getMyBookmarks = async (user) => {
   return Bookmark.find({ userId: user.userId })
-    .populate("jobId", "title location level status")
+    .populate("jobId", "title company location level status type salary description skills thumbnail slug createdAt")
     .sort({ createdAt: -1 });
 };
 

@@ -1,8 +1,54 @@
 /* Jobs Page Styles */
-.jobs-search .ant-input-affix-wrapper {
-    background: white;
-    border-radius: 8px;
-    padding: 12px 16px;
+.jobs-search-custom {
+    display: flex;
+    align-items: center;
+}
+
+.jobs-search-custom .ant-input-wrapper {
+    display: flex;
+}
+
+.jobs-search-custom .ant-input-affix-wrapper {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+    height: 50px;
+}
+
+.jobs-search-custom .ant-input-group-addon {
+    background: transparent;
+}
+
+.jobs-search-custom .ant-input-search-button {
+    background-color: #ED1B2F !important;
+    border-color: #ED1B2F !important;
+    height: 50px !important;
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Target the button more aggressively */
+.jobs-search-custom .ant-input-search-button,
+.jobs-search-custom .ant-btn,
+.jobs-search-custom .ant-btn-primary,
+.jobs-search-custom .ant-btn-default {
+    background: #ED1B2F !important;
+    background-color: #ED1B2F !important;
+    border-color: #ED1B2F !important;
+    color: white !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+.jobs-search-custom .ant-input-search-button:hover,
+.jobs-search-custom .ant-btn:hover,
+.jobs-search-custom .ant-btn-primary:hover,
+.jobs-search-custom .ant-btn-default:hover {
+    background: #c41626 !important;
+    background-color: #c41626 !important;
+    border-color: #c41626 !important;
 }
 
 .job-card {

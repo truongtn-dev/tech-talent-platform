@@ -4,16 +4,16 @@ import { authenticate, authorizeRole } from "../../middlewares/auth.middleware.j
 
 const router = express.Router();
 
-// Public routes
+// 1. Specific Admin Routes (Protected) - Must be defined BEFORE parameterized routes to avoid shadowing
+router.get("/admin", authenticate, authorizeRole("ADMIN"), controller.getAllBlogs);
+
+// 2. Public Routes
 router.get("/", controller.getPublicBlogs);
+router.get("/:slug", controller.getBlogBySlug);
 
-// Admin routes (Protected)
-router.use(authenticate);
-router.use(authorizeRole("ADMIN"));
-
-router.get("/admin", controller.getAllBlogs);
-router.post("/", controller.createBlog);
-router.put("/:id", controller.updateBlog);
-router.delete("/:id", controller.deleteBlog);
+// 3. Admin CRUD Operations (Protected)
+router.post("/", authenticate, authorizeRole("ADMIN"), controller.createBlog);
+router.put("/:id", authenticate, authorizeRole("ADMIN"), controller.updateBlog);
+router.delete("/:id", authenticate, authorizeRole("ADMIN"), controller.deleteBlog);
 
 export default router;

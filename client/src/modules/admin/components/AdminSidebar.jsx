@@ -59,16 +59,26 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderBottom: '1px solid #f0f0f0',
-                padding: '0 24px'
+                padding: '0 16px'
             }}>
-                <div style={{
-                    fontWeight: 700,
-                    fontSize: 20,
-                    color: '#ED1B2F',
-                    letterSpacing: '-0.5px'
-                }}>
-                    {collapsed ? 'TT' : 'TECH TALENT'}
-                </div>
+                {collapsed ? (
+                    <svg width="32" height="32" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="36" height="36" rx="8" fill="#ED1B2F" />
+                        <path d="M10 10L18 18L10 26" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M20 26H28" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <svg width="32" height="32" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="36" height="36" rx="8" fill="#ED1B2F" />
+                            <path d="M10 10L18 18L10 26" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M20 26H28" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span style={{ fontSize: 20, fontWeight: 700, color: '#111' }}>
+                            Tech<span style={{ color: '#ED1B2F' }}>Talent</span>
+                        </span>
+                    </div>
+                )}
             </div>
 
             <Menu

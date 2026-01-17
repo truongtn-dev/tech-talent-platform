@@ -3,18 +3,23 @@ import { Card, Row, Col, Tag, Input, Select, Button, Spin, Empty, Typography } f
 import { SearchOutlined, EnvironmentOutlined, DollarOutlined, ClockCircleOutlined, ProjectOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import jobService from "../api";
+import bookmarkService from "../../../services/bookmarkService";
+import JobCard from "../components/JobCard";
 import "../../../styles/jobs.css";
+import { useAuth } from "../../../context/AuthContext";
 
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 
 const JobsPage = () => {
     const [jobs, setJobs] = useState([]);
+    const [bookmarkedJobIds, setBookmarkedJobIds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [locationFilter, setLocationFilter] = useState("");
     const [typeFilter, setTypeFilter] = useState("");
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     useEffect(() => {
         fetchJobs();
@@ -23,12 +28,33 @@ const JobsPage = () => {
     const fetchJobs = async () => {
         setLoading(true);
         try {
-            const data = await jobService.getAllJobs();
-            setJobs(data.jobs || data || []);
+            const [jobsData, bookmarksData] = await Promise.all([
+                jobService.getAllJobs(),
+                user && user.role === 'CANDIDATE' ? bookmarkService.getMyBookmarks() : Promise.resolve([])
+            ]);
+
+            setJobs(jobsData.jobs || jobsData || []);
+
+            if (Array.isArray(bookmarksData)) {
+                // bookmarksData contains objects with jobId populated. We need the IDs.
+                // Wait, getMyBookmarks returns objects { userId, jobId: { ... } } or just { ... }
+                // Let's check the service. It populates jobId. So the items are Bookmark docs.
+                // We need to map to bookmark.jobId._id
+                const ids = bookmarksData.map(b => b.jobId._id);
+                setBookmarkedJobIds(ids);
+            }
         } catch (error) {
             console.error("Error fetching jobs:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleToggleBookmark = (jobId, isAdded) => {
+        if (isAdded) {
+            setBookmarkedJobIds(prev => [...prev, jobId]);
+        } else {
+            setBookmarkedJobIds(prev => prev.filter(id => id !== jobId));
         }
     };
 
@@ -52,7 +78,7 @@ const JobsPage = () => {
                 color: "white"
             }}>
                 <div className="container" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
-                    <Title level={1} style={{ color: "white", marginBottom: 16, fontSize: 48 }}>
+                    <Title level={1} style={{ color: "white", marginBottom: 16, fontSize: "3.5rem", fontWeight: 800 }}>
                         Find Your Dream Job
                     </Title>
                     <Paragraph style={{ color: "#e0e0e0", fontSize: 18, marginBottom: 40 }}>
@@ -61,11 +87,12 @@ const JobsPage = () => {
 
                     <Search
                         placeholder="Search by job title, company, or keyword..."
+                        enterButton="Search"
                         size="large"
-                        prefix={<SearchOutlined />}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ maxWidth: 600 }}
-                        className="jobs-search"
+                        onSearch={(value) => setSearchTerm(value)}
+                        style={{ maxWidth: 600, width: '100%' }}
+                        className="jobs-search-custom"
                     />
                 </div>
             </div>
@@ -145,88 +172,11 @@ const JobsPage = () => {
                     <Row gutter={[24, 24]}>
                         {filteredJobs.map((job) => (
                             <Col xs={24} lg={12} key={job._id}>
-                                <Card
-                                    hoverable
-                                    className="job-card"
-                                    onClick={() => navigate(`/jobs/${job._id}`)}
-                                    style={{
-                                        borderRadius: 12,
-                                        height: "100%",
-                                        border: "1px solid #f0f0f0",
-                                        transition: "all 0.3s ease"
-                                    }}
-                                    bodyStyle={{ padding: 24 }}
-                                >
-                                    {job.thumbnail && (
-                                        <div style={{ marginBottom: 16 }}>
-                                            <img
-                                                src={job.thumbnail}
-                                                alt={job.title}
-                                                style={{
-                                                    width: "100%",
-                                                    height: 180,
-                                                    objectFit: "cover",
-                                                    borderRadius: 8
-                                                }}
-                                                onError={(e) => {
-                                                    e.target.style.display = 'none';
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-
-                                    <div style={{ marginBottom: 16 }}>
-                                        <Title level={4} style={{ marginBottom: 8, color: "#1f1f1f" }}>
-                                            {job.title}
-                                        </Title>
-                                        <Text strong style={{ fontSize: 16, color: "#ED1B2F" }}>
-                                            {job.company}
-                                        </Text>
-                                    </div>
-
-                                    <div style={{ marginBottom: 16 }}>
-                                        <div style={{ marginBottom: 8 }}>
-                                            <EnvironmentOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />
-                                            <Text>{job.location || "Remote"}</Text>
-                                        </div>
-                                        {job.salary && (
-                                            <div style={{ marginBottom: 8 }}>
-                                                <DollarOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />
-                                                <Text>{job.salary}</Text>
-                                            </div>
-                                        )}
-                                        <div style={{ marginBottom: 8 }}>
-                                            <ProjectOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />
-                                            <Text>{job.type?.replace("_", " ") || "Full Time"}</Text>
-                                        </div>
-                                        <div>
-                                            <ClockCircleOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />
-                                            <Text type="secondary">
-                                                Posted {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently"}
-                                            </Text>
-                                        </div>
-                                    </div>
-
-                                    <Paragraph
-                                        ellipsis={{ rows: 3 }}
-                                        style={{ color: "#595959", marginBottom: 16 }}
-                                    >
-                                        {job.description}
-                                    </Paragraph>
-
-                                    {job.skills && job.skills.length > 0 && (
-                                        <div>
-                                            {job.skills.slice(0, 4).map((skill, idx) => (
-                                                <Tag key={idx} color="blue" style={{ marginBottom: 4 }}>
-                                                    {skill}
-                                                </Tag>
-                                            ))}
-                                            {job.skills.length > 4 && (
-                                                <Tag>+{job.skills.length - 4} more</Tag>
-                                            )}
-                                        </div>
-                                    )}
-                                </Card>
+                                <JobCard
+                                    job={job}
+                                    isBookmarked={bookmarkedJobIds.includes(job._id)}
+                                    onToggleBookmark={handleToggleBookmark}
+                                />
                             </Col>
                         ))}
                     </Row>

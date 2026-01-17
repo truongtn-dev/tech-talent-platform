@@ -10,6 +10,7 @@ const JobSchema = new mongoose.Schema(
     },
 
     title: { type: String, required: true, trim: true },
+    slug: { type: String, unique: true, index: true },
     company: { type: String, required: true, trim: true },
     description: { type: String, required: true },
     thumbnail: { type: String }, // Job thumbnail image URL
@@ -42,8 +43,13 @@ const JobSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["DRAFT", "PUBLISHED", "CLOSED"],
+      enum: ["DRAFT", "PENDING", "PUBLISHED", "CLOSED"],
       default: "DRAFT",
+      index: true,
+    },
+    challengeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Challenge",
       index: true,
     },
   },

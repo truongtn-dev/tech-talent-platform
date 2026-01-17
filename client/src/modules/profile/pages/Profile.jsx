@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Form, Input, Button, Card, Row, Col, Typography, message, Avatar, Upload, Divider, Tabs, Select } from "antd";
-import { UserOutlined, PhoneOutlined, EnvironmentOutlined, CameraOutlined, EditOutlined } from "@ant-design/icons";
+import { UserOutlined, PhoneOutlined, EnvironmentOutlined, CameraOutlined, EditOutlined, PlusOutlined, MinusCircleOutlined, SolutionOutlined, ReadOutlined, ProjectOutlined } from "@ant-design/icons";
 import { useAuth } from "../../../context/AuthContext";
 import profileService from "../../../services/profileService";
 import authService from "../../../services/authService";
@@ -29,6 +29,10 @@ const Profile = () => {
                 headline: user.profile.headline,
                 summary: user.profile.summary,
                 skills: user.profile.skills || [],
+                experience: user.profile.experience || [],
+                education: user.profile.education || [],
+                projects: user.profile.projects || [],
+                certifications: user.profile.certifications || [],
             });
         }
     }, [user, form]);
@@ -170,91 +174,206 @@ const Profile = () => {
                                         requiredMark={false}
                                     >
                                         <Row gutter={24}>
-                                            <Col xs={24} sm={12}>
-                                                <Form.Item
-                                                    name="firstName"
-                                                    label="First Name"
-                                                    rules={[{ required: true, message: "Required" }]}
-                                                >
-                                                    <Input size="large" prefix={<UserOutlined className="site-form-item-icon" />} />
+                                            <Col span={12}>
+                                                <Form.Item name="firstName" label="First Name" rules={[{ required: true }]}>
+                                                    <Input placeholder="John" />
                                                 </Form.Item>
                                             </Col>
-                                            <Col xs={24} sm={12}>
-                                                <Form.Item
-                                                    name="lastName"
-                                                    label="Last Name"
-                                                    rules={[{ required: true, message: "Required" }]}
-                                                >
-                                                    <Input size="large" prefix={<UserOutlined className="site-form-item-icon" />} />
+                                            <Col span={12}>
+                                                <Form.Item name="lastName" label="Last Name" rules={[{ required: true }]}>
+                                                    <Input placeholder="Doe" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item name="headline" label="Headline">
+                                                    <Input placeholder="Software Engineer | React Enthusiast" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={12}>
+                                                <Form.Item name="phone" label="Phone Number">
+                                                    <Input placeholder="+1 234 567 890" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={12}>
+                                                <Form.Item name="location" label="Location">
+                                                    <Input placeholder="San Francisco, CA" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item name="summary" label="About Me">
+                                                    <TextArea rows={4} placeholder="Write a short summary about yourself..." />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item name="skills" label="Skills">
+                                                    <Select
+                                                        mode="tags"
+                                                        style={{ width: '100%' }}
+                                                        placeholder="Add skills (e.g. React, Node.js)"
+                                                        tokenSeparators={[',']}
+                                                        open={false}
+                                                    />
                                                 </Form.Item>
                                             </Col>
                                         </Row>
-
-                                        <Row gutter={24}>
-                                            <Col xs={24} sm={12}>
-                                                <Form.Item
-                                                    name="phone"
-                                                    label="Phone Number"
-                                                >
-                                                    <Input size="large" prefix={<PhoneOutlined className="site-form-item-icon" />} />
-                                                </Form.Item>
-                                            </Col>
-                                        </Row>
-
-                                        <Form.Item
-                                            name="headline"
-                                            label="Professional Headline"
-                                            tooltip="A brief description that appears below your name"
-                                        >
-                                            <Input size="large" placeholder="e.g. Senior Frontend Developer at TechCorp" />
-                                        </Form.Item>
-
-                                        <Form.Item
-                                            name="location"
-                                            label="Location"
-                                        >
-                                            <Input size="large" prefix={<EnvironmentOutlined />} placeholder="City, Country" />
-                                        </Form.Item>
-
-                                        <Form.Item
-                                            name="summary"
-                                            label="About Me"
-                                        >
-                                            <TextArea
-                                                rows={6}
-                                                placeholder="Tell potential employers or candidates about your background, skills, and goals..."
-                                                maxLength={500}
-                                                showCount
-                                            />
-                                        </Form.Item>
-
-                                        <Form.Item
-                                            name="skills"
-                                            label="Skills"
-                                            tooltip="Select or type your key skills"
-                                        >
-                                            <Select
-                                                mode="tags"
-                                                style={{ width: '100%' }}
-                                                placeholder="e.g. React, Node.js, Python"
-                                                tokenSeparators={[',']}
-                                                size="large"
-                                            />
-                                        </Form.Item>
-
-                                        <Divider />
-
-                                        <Form.Item style={{ marginBottom: 0, textAlign: "right" }}>
-                                            <Button type="default" style={{ marginRight: 12 }} onClick={() => form.resetFields()}>
-                                                Reset
-                                            </Button>
-                                            <Button type="primary" htmlType="submit" loading={loading} size="large" style={{ minWidth: 120, backgroundColor: "#ED1B2F", borderColor: "#ED1B2F" }}>
-                                                Save Changes
+                                        <Form.Item>
+                                            <Button type="primary" htmlType="submit" loading={loading} style={{ float: 'right', backgroundColor: "#ED1B2F", borderColor: "#ED1B2F" }}>
+                                                Save Information
                                             </Button>
                                         </Form.Item>
                                     </Form>
                                 </TabPane>
-                                <TabPane tab="Change Password" key="2">
+
+                                <TabPane tab={<span><SolutionOutlined /> Experience</span>} key="2">
+                                    <Form form={form} layout="vertical" onFinish={onUpdateProfile} style={{ marginTop: 24 }}>
+                                        <Form.List name="experience">
+                                            {(fields, { add, remove }) => (
+                                                <>
+                                                    {fields.map(({ key, name, ...restField }) => (
+                                                        <Card key={key} style={{ marginBottom: 24, background: "#fafafa" }} size="small">
+                                                            <Row gutter={24}>
+                                                                <Col span={24} style={{ textAlign: 'right' }}>
+                                                                    <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
+                                                                </Col>
+                                                                <Col span={12}>
+                                                                    <Form.Item {...restField} name={[name, 'position']} label="Position" rules={[{ required: true }]}>
+                                                                        <Input placeholder="e.g. Senior Frontend Engineer" />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={12}>
+                                                                    <Form.Item {...restField} name={[name, 'company']} label="Company" rules={[{ required: true }]}>
+                                                                        <Input placeholder="e.g. Google" />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={12}>
+                                                                    <Form.Item {...restField} name={[name, 'startDate']} label="Start Date">
+                                                                        <Input type="date" />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={12}>
+                                                                    <Form.Item {...restField} name={[name, 'endDate']} label="End Date">
+                                                                        <Input type="date" />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={24}>
+                                                                    <Form.Item {...restField} name={[name, 'description']} label="Description">
+                                                                        <TextArea rows={3} placeholder="Describe your responsibilities and achievements..." />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                            </Row>
+                                                        </Card>
+                                                    ))}
+                                                    <Form.Item>
+                                                        <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                            Add Experience
+                                                        </Button>
+                                                    </Form.Item>
+                                                </>
+                                            )}
+                                        </Form.List>
+                                        <Form.Item>
+                                            <Button type="primary" htmlType="submit" loading={loading} style={{ float: 'right', backgroundColor: "#ED1B2F", borderColor: "#ED1B2F" }}>Save Experience</Button>
+                                        </Form.Item>
+                                    </Form>
+                                </TabPane>
+
+                                <TabPane tab={<span><ReadOutlined /> Education</span>} key="3">
+                                    <Form form={form} layout="vertical" onFinish={onUpdateProfile} style={{ marginTop: 24 }}>
+                                        <Form.List name="education">
+                                            {(fields, { add, remove }) => (
+                                                <>
+                                                    {fields.map(({ key, name, ...restField }) => (
+                                                        <Card key={key} style={{ marginBottom: 24, background: "#fafafa" }} size="small">
+                                                            <Row gutter={24}>
+                                                                <Col span={24} style={{ textAlign: 'right' }}>
+                                                                    <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
+                                                                </Col>
+                                                                <Col span={12}>
+                                                                    <Form.Item {...restField} name={[name, 'school']} label="School/University" rules={[{ required: true }]}>
+                                                                        <Input placeholder="e.g. Harvard University" />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={12}>
+                                                                    <Form.Item {...restField} name={[name, 'degree']} label="Degree">
+                                                                        <Input placeholder="e.g. Bachelor's Status" />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={12}>
+                                                                    <Form.Item {...restField} name={[name, 'fieldOfStudy']} label="Field of Study">
+                                                                        <Input placeholder="e.g. Computer Science" />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={12}>
+                                                                    <Form.Item {...restField} name={[name, 'endDate']} label="Graduation Year/Date">
+                                                                        <Input type="date" />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                            </Row>
+                                                        </Card>
+                                                    ))}
+                                                    <Form.Item>
+                                                        <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                            Add Education
+                                                        </Button>
+                                                    </Form.Item>
+                                                </>
+                                            )}
+                                        </Form.List>
+                                        <Form.Item>
+                                            <Button type="primary" htmlType="submit" loading={loading} style={{ float: 'right', backgroundColor: "#ED1B2F", borderColor: "#ED1B2F" }}>Save Education</Button>
+                                        </Form.Item>
+                                    </Form>
+                                </TabPane>
+
+                                <TabPane tab={<span><ProjectOutlined /> Projects</span>} key="4">
+                                    <Form form={form} layout="vertical" onFinish={onUpdateProfile} style={{ marginTop: 24 }}>
+                                        <Form.List name="projects">
+                                            {(fields, { add, remove }) => (
+                                                <>
+                                                    {fields.map(({ key, name, ...restField }) => (
+                                                        <Card key={key} style={{ marginBottom: 24, background: "#fafafa" }} size="small">
+                                                            <Row gutter={24}>
+                                                                <Col span={24} style={{ textAlign: 'right' }}>
+                                                                    <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
+                                                                </Col>
+                                                                <Col span={12}>
+                                                                    <Form.Item {...restField} name={[name, 'title']} label="Project Title" rules={[{ required: true }]}>
+                                                                        <Input placeholder="e.g. E-commerce Website" />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={12}>
+                                                                    <Form.Item {...restField} name={[name, 'role']} label="Your Role">
+                                                                        <Input placeholder="e.g. Lead Developer" />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={24}>
+                                                                    <Form.Item {...restField} name={[name, 'url']} label="Project URL">
+                                                                        <Input placeholder="https://..." />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={24}>
+                                                                    <Form.Item {...restField} name={[name, 'description']} label="Description">
+                                                                        <TextArea rows={3} placeholder="Describe the project..." />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                            </Row>
+                                                        </Card>
+                                                    ))}
+                                                    <Form.Item>
+                                                        <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                            Add Project
+                                                        </Button>
+                                                    </Form.Item>
+                                                </>
+                                            )}
+                                        </Form.List>
+                                        <Form.Item>
+                                            <Button type="primary" htmlType="submit" loading={loading} style={{ float: 'right', backgroundColor: "#ED1B2F", borderColor: "#ED1B2F" }}>Save Projects</Button>
+                                        </Form.Item>
+                                    </Form>
+                                </TabPane>
+
+                                <TabPane tab="Change Password" key="5">
                                     <ChangePassword />
                                 </TabPane>
                             </Tabs>

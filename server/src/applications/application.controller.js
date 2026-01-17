@@ -47,3 +47,15 @@ export const updateStatus = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+export const checkStatus = async (req, res) => {
+  try {
+    const application = await applicationService.checkUserApplication(
+      req.params.jobId,
+      req.user.userId
+    );
+    res.json(application || { applied: false });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};

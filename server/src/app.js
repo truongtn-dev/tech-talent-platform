@@ -16,11 +16,22 @@ import path from "path";
 import uploadRoutes from "./uploads/upload.routes.js";
 import bookmarkRoutes from "./bookmarks/bookmark.routes.js";
 import blogRoutes from "./modules/blog/blog.routes.js";
+import recruiterRoutes from "./recruiter/recruiter.routes.js";
+import interviewerRoutes from "./interviewer/interviewer.routes.js";
+import aiRoutes from "./ai/ai.routes.js";
+import challengeRoutes from "./challenges/challenge.routes.js";
 
 const app = express();
 
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 app.use(cors());
 app.use(express.json());
+
+app.get("/api/test-server", (req, res) => res.json({ status: "alive", time: new Date() }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
@@ -36,6 +47,10 @@ app.use("/api/uploads", uploadRoutes);
 app.use("/uploads", express.static(path.resolve("uploads")));
 app.use("/api/bookmarks", bookmarkRoutes);
 app.use("/api/blogs", blogRoutes);
+app.use("/api/recruiter", recruiterRoutes);
+app.use("/api/interviewer", interviewerRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/challenges", challengeRoutes);
 
 app.use(errorHandler);
 

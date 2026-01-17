@@ -12,6 +12,21 @@ export const getPublicBlogs = async (req, res) => {
     }
 };
 
+// Public: Get single blog by slug
+export const getBlogBySlug = async (req, res) => {
+    try {
+        const blog = await Blog.findOne({ slug: req.params.slug, status: "PUBLISHED" })
+            .populate("author", "email avatar profile");
+
+        if (!blog) {
+            return res.status(404).json({ message: "Blog not found" });
+        }
+        res.json(blog);
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
 // Admin: Get all blogs
 export const getAllBlogs = async (req, res) => {
     try {
@@ -27,13 +42,14 @@ export const getAllBlogs = async (req, res) => {
 // Admin: Create blog
 export const createBlog = async (req, res) => {
     try {
-        const { title, content, thumbnail, status, tags } = req.body;
+        const { title, content, thumbnail, status, tags, slug } = req.body;
         const blog = await Blog.create({
             title,
             content,
             thumbnail,
             status: status || "DRAFT",
             tags,
+            slug,
             author: req.user.userId
         });
         res.status(201).json(blog);

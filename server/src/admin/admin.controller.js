@@ -72,11 +72,47 @@ export const hideJob = async (req, res) => {
   }
 };
 
+export const createJob = async (req, res) => {
+  try {
+    const job = await service.createJob(req.body, req.user);
+    res.status(201).json(job);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+export const updateJob = async (req, res) => {
+  try {
+    const job = await service.updateJob(req.params.id, req.body, req.user);
+    res.json(job);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+export const deleteJob = async (req, res) => {
+  try {
+    const result = await service.deleteJob(req.params.id, req.user);
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 export const dashboard = async (req, res) => {
   try {
     const stats = await service.dashboardStats(req.user);
     res.json(stats);
   } catch (err) {
     res.status(403).json({ message: err.message });
+  }
+};
+
+export const getApplications = async (req, res) => {
+  try {
+    const applications = await service.getApplications(req.user);
+    res.json(applications);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 };

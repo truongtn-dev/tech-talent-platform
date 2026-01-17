@@ -9,6 +9,20 @@ export const uploadCV = async (req, res) => {
   }
 };
 
+export const uploadImage = async (req, res) => {
+  try {
+    if (!req.file) throw new Error("No file uploaded");
+
+    // Construct full URL for local storage
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const url = `${baseUrl}/${req.file.path.replace(/\\/g, "/")}`;
+
+    res.status(201).json({ url, ...req.file });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 export const myUploads = async (req, res) => {
   const uploads = await service.getMyUploads(req.user);
   res.json(uploads);
