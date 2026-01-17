@@ -10,11 +10,17 @@ const JobSchema = new mongoose.Schema(
     },
 
     title: { type: String, required: true, trim: true },
+    company: { type: String, required: true, trim: true },
     description: { type: String, required: true },
+    thumbnail: { type: String }, // Job thumbnail image URL
 
-    skillsRequired: {
+    skills: {
       type: [String],
       index: true,
+    },
+
+    requirements: {
+      type: [String],
     },
 
     level: {
@@ -23,7 +29,16 @@ const JobSchema = new mongoose.Schema(
       default: "MID",
     },
 
+    type: {
+      type: String,
+      enum: ["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP"],
+      default: "FULL_TIME",
+    },
+
+    salary: { type: String }, // e.g., "$50,000 - $80,000"
     location: { type: String, index: true },
+    contactEmail: { type: String },
+    applicationDeadline: { type: Date },
 
     status: {
       type: String,

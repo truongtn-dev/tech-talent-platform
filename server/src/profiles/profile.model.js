@@ -10,6 +10,8 @@ const ProfileSchema = new mongoose.Schema(
       index: true,
     },
 
+    firstName: String,
+    lastName: String,
     fullName: String,
     phone: String,
     location: String,

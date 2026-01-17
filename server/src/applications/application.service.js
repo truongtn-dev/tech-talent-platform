@@ -69,3 +69,38 @@ export const applyJob = async (data, user) => {
     timeline: [{ status: "APPLIED" }],
   });
 };
+
+export const getApplicationsByCandidate = async (userId) => {
+  return Application.find({ candidateId: userId })
+    .populate("jobId", "title location")
+    .sort({ createdAt: -1 });
+};
+
+export const getApplicationsByJob = async (jobId, userId, role) => {
+  const job = await Job.findById(jobId);
+  if (!job) throw new Error("Job not found");
+
+  if (role !== "ADMIN" && job.recruiterId.toString() !== userId) {
+    throw new Error("Unauthorized");
+  }
+
+  return Application.find({ jobId })
+    .populate("candidateId", "email") // In real app, profile details would be better
+    .sort({ matchingScore: -1 });
+};
+
+export const updateStatus = async (applicationId, status, userId, role) => {
+  const app = await Application.findById(applicationId).populate("jobId");
+  if (!app) throw new Error("Application not found");
+
+  const job = app.jobId;
+  if (role !== "ADMIN" && job.recruiterId.toString() !== userId) {
+    throw new Error("Unauthorized");
+  }
+
+  app.status = status;
+  app.timeline.push({ status });
+  await app.save();
+
+  return app;
+};

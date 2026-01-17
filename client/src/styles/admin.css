@@ -1,0 +1,348 @@
+/* ==========================================================================
+   ADMIN PANEL - CLEAN PROFESSIONAL LIGHT THEME
+   Consistent with Global Design System
+   ========================================================================== */
+
+:root {
+  --admin-sidebar-width: 260px;
+  --admin-header-height: 72px;
+}
+
+/* Force consistent font family throughout */
+* {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif !important;
+}
+
+/* Layout Background - Light Gray */
+.ant-layout {
+  background: #f7f7f7 !important;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.admin-sidebar {
+  background: #ffffff !important;
+  border-right: 1px solid #e8e8e8;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+  z-index: 1001;
+}
+
+.admin-sidebar .ant-layout-sider-trigger {
+  background: #f5f5f5 !important;
+  color: #555 !important;
+  border-top: 1px solid #e8e8e8;
+}
+
+.admin-sidebar .ant-menu {
+  background: transparent !important;
+  border-inline-end: none !important;
+  padding: 16px 12px;
+}
+
+.admin-sidebar .ant-menu-item {
+  margin-bottom: 4px !important;
+  border-radius: 8px !important;
+  color: #555 !important;
+  font-weight: 500;
+  font-size: 15px;
+  height: 44px;
+  line-height: 44px;
+  transition: all 0.2s ease;
+}
+
+.admin-sidebar .ant-menu-item .anticon {
+  font-size: 18px;
+}
+
+.admin-sidebar .ant-menu-item:hover {
+  color: #ed1b2f !important;
+  background: #fff5f5 !important;
+}
+
+.admin-sidebar .ant-menu-item-selected {
+  background: #ffe8ea !important;
+  color: #ed1b2f !important;
+  font-weight: 600;
+}
+
+.admin-sidebar .ant-menu-item-selected .anticon {
+  color: #ed1b2f !important;
+}
+
+/* Logout Button - Make it PROMINENT */
+.admin-sidebar .ant-menu-item-danger {
+  color: #ed1b2f !important;
+  background: #fff1f0 !important;
+  border: 1px solid #ffccc7 !important;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.admin-sidebar .ant-menu-item-danger:hover {
+  background: #ed1b2f !important;
+  color: #ffffff !important;
+}
+
+.admin-sidebar .ant-menu-item-danger .anticon {
+  color: #ed1b2f !important;
+  background: transparent !important;
+}
+
+.admin-sidebar .ant-menu-item-danger:hover .anticon {
+  color: #ffffff !important;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.admin-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 0 32px !important;
+  height: var(--admin-header-height) !important;
+  line-height: var(--admin-header-height) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.admin-header .ant-btn {
+  font-size: 18px;
+}
+
+.admin-header .ant-typography {
+  color: #111;
+  font-weight: 600;
+}
+
+/* ============================================
+   CONTENT AREA
+   ============================================ */
+.ant-layout-content {
+  padding: 32px !important;
+  min-height: calc(100vh - var(--admin-header-height));
+  background: transparent;
+}
+
+/* Page Title */
+.ant-layout-content h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.admin-card {
+  background: #ffffff !important;
+  border: 1px solid #e8e8e8 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  margin-bottom: 24px;
+}
+
+.admin-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0 !important;
+  padding: 20px 24px;
+}
+
+.admin-card .ant-card-head-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111;
+}
+
+.admin-card .ant-card-body {
+  padding: 24px;
+}
+
+/* ============================================
+   STATISTICS CARDS
+   ============================================ */
+.stat-card {
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.stat-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+  border-color: #ed1b2f;
+}
+
+.stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.ant-statistic-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.ant-statistic-content {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+.admin-table .ant-table {
+  background: transparent !important;
+}
+
+.admin-table .ant-table-thead > tr > th {
+  background: #fafafa !important;
+  color: #666 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e8e8e8 !important;
+  padding: 16px !important;
+}
+
+.admin-table .ant-table-tbody > tr > td {
+  padding: 16px !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  font-size: 15px;
+}
+
+.admin-table .ant-table-row:hover > td {
+  background: #fafafa !important;
+}
+
+/* ============================================
+   FORMS & INPUTS
+   ============================================ */
+.ant-input,
+.ant-select-selector,
+.ant-input-affix-wrapper {
+  border-radius: 8px !important;
+  border-color: #d9d9d9 !important;
+  font-size: 15px !important;
+}
+
+.ant-input:focus,
+.ant-input-focused,
+.ant-select-focused .ant-select-selector,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: #ed1b2f !important;
+  box-shadow: 0 0 0 2px rgba(237, 27, 47, 0.1) !important;
+}
+
+.ant-form-item-label > label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.ant-btn {
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  height: 40px;
+  padding: 0 20px;
+}
+
+.ant-btn-primary {
+  background-color: #ed1b2f !important;
+  border-color: #ed1b2f !important;
+  box-shadow: 0 2px 4px rgba(237, 27, 47, 0.2);
+}
+
+.ant-btn-primary:hover {
+  background-color: #c41223 !important;
+  border-color: #c41223 !important;
+  box-shadow: 0 4px 8px rgba(237, 27, 47, 0.3);
+}
+
+.ant-btn-default:hover {
+  color: #ed1b2f !important;
+  border-color: #ed1b2f !important;
+}
+
+/* Danger Button */
+.ant-btn-dangerous {
+  color: #ed1b2f;
+  border-color: #ed1b2f;
+}
+
+.ant-btn-dangerous:hover {
+  color: #ffffff !important;
+  background-color: #ed1b2f !important;
+  border-color: #ed1b2f !important;
+}
+
+/* ============================================
+   TAGS
+   ============================================ */
+.ant-tag {
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 4px 12px;
+  border: none;
+}
+
+/* ============================================
+   MODALS
+   ============================================ */
+.ant-modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 20px 24px;
+}
+
+.ant-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111;
+}
+
+.ant-modal-body {
+  padding: 24px;
+}
+
+.ant-modal-footer {
+  border-top: 1px solid #f0f0f0;
+  padding: 16px 24px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .ant-layout-content {
+    padding: 16px !important;
+  }
+
+  .admin-header {
+    padding: 0 16px !important;
+  }
+}

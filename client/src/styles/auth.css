@@ -1,0 +1,261 @@
+/* ==============================================
+   AUTH LAYOUT - SPLIT SCREEN PREMIUM DESIGN
+   ============================================== */
+
+.auth-page-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* LEFT SIDE - BRANDING */
+.auth-left-panel {
+    flex: 1;
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 60px;
+    color: white;
+    overflow: hidden;
+}
+
+/* Decorative Background Elements */
+.auth-left-panel::before {
+    content: "";
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(237, 27, 47, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.auth-left-panel::after {
+    content: "";
+    position: absolute;
+    bottom: -10%;
+    left: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(237, 27, 47, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.auth-brand-content {
+    position: relative;
+    z-index: 10;
+}
+
+.auth-brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 24px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 80px;
+}
+
+.auth-brand-heading {
+    font-size: 48px;
+    line-height: 1.1;
+    font-weight: 700;
+    margin-bottom: 24px;
+    background: linear-gradient(to right, #fff, #cecece);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.auth-brand-text {
+    font-size: 18px;
+    color: #a0a0a0;
+    line-height: 1.6;
+    max-width: 480px;
+}
+
+.auth-testimonial {
+    position: relative;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-testimonial-text {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #e0e0e0;
+    font-style: italic;
+    margin-bottom: 16px;
+}
+
+.auth-testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.auth-testimonial-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--i-red);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* RIGHT SIDE - FORM */
+.auth-right-panel {
+    width: 100%;
+    max-width: 600px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 80px;
+    position: relative;
+}
+
+.auth-form-container {
+    width: 100%;
+}
+
+.auth-title-row {
+    margin-bottom: 40px;
+}
+
+.auth-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 8px;
+}
+
+.auth-subtitle {
+    color: #666;
+    font-size: 16px;
+}
+
+/* ANT DESIGN OVERRIDES - THE "PREMIUM" FIX */
+
+/* Inputs */
+.modern-auth-form .ant-input-affix-wrapper {
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+    box-shadow: none !important;
+    /* Kill default shadow */
+}
+
+.modern-auth-form .ant-input-affix-wrapper:hover {
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.modern-auth-form .ant-input-affix-wrapper:focus,
+.modern-auth-form .ant-input-affix-wrapper-focused {
+    background-color: #fff;
+    border-color: var(--i-red) !important;
+    box-shadow: 0 0 0 4px rgba(237, 27, 47, 0.1) !important;
+}
+
+.modern-auth-form .ant-input {
+    background: transparent !important;
+    font-size: 16px;
+    color: #111;
+}
+
+/* Form Items */
+.modern-auth-form .ant-form-item-label>label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+/* Radio Buttons (Role Selection) */
+.role-selector-group {
+    width: 100%;
+    display: flex;
+    gap: 16px;
+}
+
+.modern-auth-form .ant-radio-button-wrapper {
+    flex: 1;
+    text-align: center;
+    height: 50px;
+    line-height: 48px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    color: #666;
+    font-weight: 500;
+    background: #fff;
+    transition: all 0.3s;
+}
+
+.modern-auth-form .ant-radio-button-wrapper:not(:first-child)::before {
+    display: none;
+    /* remove separator */
+}
+
+.modern-auth-form .ant-radio-button-wrapper-checked {
+    background-color: rgba(237, 27, 47, 0.05) !important;
+    border-color: var(--i-red) !important;
+    color: var(--i-red) !important;
+    font-weight: 600;
+    box-shadow: none !important;
+}
+
+.modern-auth-form .ant-radio-button-wrapper:hover {
+    color: var(--i-red);
+}
+
+/* Submit Button */
+.submit-btn {
+    height: 56px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    background: var(--i-red) !important;
+    border-color: var(--i-red) !important;
+    box-shadow: 0 4px 12px rgba(237, 27, 47, 0.3);
+    margin-top: 16px;
+    transition: all 0.3s;
+}
+
+.submit-btn:hover {
+    background: #c41223 !important;
+    /* Darker red */
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(237, 27, 47, 0.4);
+}
+
+/* Alert/Message Overrides */
+.ant-message-notice-content {
+    border-radius: 8px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .auth-left-panel {
+        display: none;
+    }
+
+    .auth-right-panel {
+        max-width: 100%;
+        padding: 40px 24px;
+    }
+}

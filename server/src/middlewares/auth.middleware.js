@@ -17,3 +17,12 @@ export const authenticate = (req, res, next) => {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
+
+export const authorizeRole = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Forbidden: Insufficient permissions" });
+    }
+    next();
+  };
+};

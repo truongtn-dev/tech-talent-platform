@@ -15,6 +15,7 @@ import cvRoutes from "./cvs/cv.routes.js";
 import path from "path";
 import uploadRoutes from "./uploads/upload.routes.js";
 import bookmarkRoutes from "./bookmarks/bookmark.routes.js";
+import blogRoutes from "./modules/blog/blog.routes.js";
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/cvs", cvRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/uploads", express.static(path.resolve("uploads")));
 app.use("/api/bookmarks", bookmarkRoutes);
+app.use("/api/blogs", blogRoutes);
 
 app.use(errorHandler);
 

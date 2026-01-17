@@ -1,0 +1,256 @@
+/* ============================================
+   HEADER STYLES (Clean & Consistent)
+   ============================================ */
+.app-header {
+  background: #fff;
+  padding: 0;
+  height: 72px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 100%;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* LOGO: Horizontal Layout, Default Font */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  margin-right: 48px;
+}
+
+.logo-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Brand Name Horizontal */
+.logo-text-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
+}
+
+.logo-text-primary {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #121212;
+}
+
+.logo-text-secondary {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #ED1B2F;
+}
+
+/* DESKTOP MENU: Underline Only on Hover */
+.desktop-menu {
+  flex: 1;
+}
+
+.nav-menu {
+  background: transparent !important;
+  border-bottom: none !important;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 70px;
+}
+
+.nav-menu .ant-menu-item {
+  color: #555;
+  padding: 0 20px !important;
+  position: relative;
+}
+
+/* Remove default underline for selected item */
+.nav-menu .ant-menu-item-selected::after {
+  border-bottom: none !important;
+}
+
+/* Add custom underline on HOVER only */
+.nav-menu .ant-menu-item::after {
+  border-bottom: 2px solid #ED1B2F !important;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.nav-menu .ant-menu-item:hover::after {
+  transform: scaleX(1);
+}
+
+/* Keep text color change on selected/hover */
+.nav-menu .ant-menu-item-selected,
+.nav-menu .ant-menu-item:hover {
+  color: #ED1B2F !important;
+}
+
+
+/* RIGHT SECTION */
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.notification-badge .ant-btn {
+  border: none;
+  background: #f5f5f5;
+}
+
+.notification-badge .ant-btn:hover {
+  background: #E6F7FF;
+  color: #1890ff;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.user-profile:hover {
+  background: #f5f5f5;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-role {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* AUTH BUTTONS */
+.desktop-auth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-button {
+  font-weight: 600;
+  color: #555;
+}
+
+.login-button:hover {
+  color: #ED1B2F;
+}
+
+.register-button {
+  background: #ED1B2F;
+  border-color: #ED1B2F;
+  font-weight: 600;
+  height: 40px;
+  padding: 0 24px;
+  border-radius: 6px;
+}
+
+.register-button:hover {
+  background: #c41223 !important;
+  border-color: #c41223 !important;
+}
+
+/* RESPONSIVE */
+.mobile-toggle-btn {
+  display: none;
+  font-size: 20px;
+  margin-left: 16px;
+}
+
+.mobile-drawer-custom .ant-drawer-header {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.drawer-auth {
+  padding: 24px;
+  border-top: 1px solid #f0f0f0;
+  margin-top: auto;
+}
+
+.mb-2 {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 992px) {
+  .header-inner {
+    padding: 0 20px;
+  }
+
+  .logo {
+    margin-right: 0;
+  }
+
+  .desktop-menu {
+    display: none;
+  }
+
+  .desktop-auth {
+    display: none;
+  }
+
+  .mobile-toggle-btn {
+    display: block;
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  /* FIX DRAWER BUTTON COLORS */
+  .drawer-auth .ant-btn-primary {
+    background-color: #ED1B2F !important;
+    border-color: #ED1B2F !important;
+  }
+
+  .drawer-auth .ant-btn-primary:hover {
+    background-color: #c41223 !important;
+    border-color: #c41223 !important;
+  }
+
+  .drawer-auth .ant-btn-default {
+    color: #555;
+    border-color: #d9d9d9;
+  }
+
+  .drawer-auth .ant-btn-default:hover {
+    color: #ED1B2F !important;
+    border-color: #ED1B2F !important;
+  }
+}

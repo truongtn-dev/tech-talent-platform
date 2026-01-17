@@ -2,7 +2,14 @@ import * as jobService from "./job.service.js";
 
 export const createJob = async (req, res) => {
   try {
-    const job = await jobService.createJob(req.body, req.user);
+    const jobData = { ...req.body };
+
+    // Handle thumbnail upload
+    if (req.file) {
+      jobData.thumbnail = `${req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
+    }
+
+    const job = await jobService.createJob(jobData, req.user);
     res.status(201).json(job);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -11,7 +18,14 @@ export const createJob = async (req, res) => {
 
 export const updateJob = async (req, res) => {
   try {
-    const job = await jobService.updateJob(req.params.id, req.body, req.user);
+    const jobData = { ...req.body };
+
+    // Handle thumbnail upload
+    if (req.file) {
+      jobData.thumbnail = `${req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
+    }
+
+    const job = await jobService.updateJob(req.params.id, jobData, req.user);
     res.json(job);
   } catch (err) {
     res.status(400).json({ message: err.message });

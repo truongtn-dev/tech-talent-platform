@@ -26,6 +26,11 @@ const UserSchema = new mongoose.Schema(
       enum: ["ACTIVE", "SUSPENDED"],
       default: "ACTIVE",
     },
+
+    avatar: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

@@ -7,8 +7,12 @@ const router = express.Router();
 router.use(authenticate);
 
 router.get("/users", controller.getUsers);
+router.post("/users", controller.createUser);
+router.put("/users/:id", controller.updateUser);
+router.delete("/users/:id", controller.deleteUser);
 router.put("/users/:id/toggle", controller.toggleUserStatus);
 
+router.get("/jobs", controller.getJobs);
 router.put("/jobs/:id/approve", controller.approveJob);
 router.put("/jobs/:id/hide", controller.hideJob);
 
