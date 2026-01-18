@@ -1,4 +1,7 @@
+// ... imports
 import * as applicationService from "./application.service.js";
+
+// ... existing methods like applyJob, myApplications
 
 export const applyJob = async (req, res) => {
   try {
@@ -35,12 +38,29 @@ export const applicationsByJob = async (req, res) => {
 export const updateStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, note } = req.body; // Extract note
     const updatedApp = await applicationService.updateStatus(
       id,
       status,
       req.user.userId,
-      req.user.role
+      req.user.role,
+      note
+    );
+    res.json(updatedApp);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+export const assignAppTest = async (req, res) => {
+  try {
+    const { id } = req.params; // Application ID
+    const { challengeId } = req.body;
+
+    const updatedApp = await applicationService.assignTest(
+      id,
+      challengeId,
+      req.user.userId
     );
     res.json(updatedApp);
   } catch (err) {

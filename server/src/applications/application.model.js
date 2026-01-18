@@ -15,44 +15,64 @@ const ApplicationSchema = new mongoose.Schema(
       index: true,
     },
 
-    cvType: {
-      type: String,
-      enum: ["ONLINE", "UPLOAD", "PROFILE"],
-      required: true,
+    // --- Candidate Snapshot (Immutable at time of apply) ---
+    // Instead of just ref, we should store key details to prevent "Bait & Switch"
+    resumeSnapshot: {
+      cvUrl: { type: String }, // For UPLOAD type
+      profileData: { type: Object }, // For ONLINE type
+      capturedAt: { type: Date, default: Date.now },
     },
 
+    cvType: {
+      type: String,
+      enum: ["ONLINE", "UPLOAD", "PROFILE"], // PROFILE matches ONLINE usually
+      required: true,
+    },
+    // We keep ref for historical link, but Recruiter views Snapshot
     cvRef: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       index: true,
     },
 
+    // --- State Machine ---
     status: {
       type: String,
       enum: [
         "APPLIED",
         "SCREENED",
-        "TEST_SENT",
-        "INTERVIEW",
+        "TEST_ASSIGNED",      // Recruiter assigned a test
+        "TEST_SUBMITTED",     // Candidate finished test
+        "INTERVIEW_SCHEDULED",// Recruiter invited
+        "INTERVIEW_COMPLETED",// Interviewer submitted feedback
         "OFFER",
         "REJECTED",
+        "WITHDRAWN",
+        "OFFER_ACCEPTED",
+        "OFFER_DECLINED"
       ],
       default: "APPLIED",
       index: true,
     },
 
-    timeline: [
+    history: [
       {
         status: String,
+        updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        note: String,
         at: { type: Date, default: Date.now },
       },
     ],
 
-    matchingScore: { type: Number, default: 0 },
-    matchingReason: {
-      type: String,
+    // --- Scoring & Evaluations ---
+    score: {
+      aiMatching: { type: Number, default: 0 }, // 0-100
+      aiExplanation: String,
+      codingTest: { type: Number }, // 0-100
+      interview: { type: Number },  // 0-10
     },
-    testId: { type: mongoose.Schema.Types.ObjectId, ref: "Challenge" },
+
+    // --- Active Links ---
+    testAssignmentId: { type: mongoose.Schema.Types.ObjectId, ref: "TestAssignment" },
     interviewId: { type: mongoose.Schema.Types.ObjectId, ref: "Interview" },
   },
   { timestamps: true },

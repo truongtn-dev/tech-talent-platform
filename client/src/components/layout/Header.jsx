@@ -189,7 +189,7 @@ const Header = () => {
               <Dropdown
                 trigger={['click']}
                 placement="bottomRight"
-                dropdownRender={() => (
+                popupRender={() => (
                   <div className="notification-dropdown">
                     <div className="notification-header">
                       <span>Notifications</span>

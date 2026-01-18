@@ -9,6 +9,15 @@ export const getMyJobs = async (req, res) => {
     }
 };
 
+export const getInterviewers = async (req, res) => {
+    try {
+        const interviewers = await service.getInterviewers();
+        res.json(interviewers);
+    } catch (err) {
+        res.status(500).json({ message: "Failed to fetch interviewers" });
+    }
+};
+
 export const createJob = async (req, res) => {
     try {
         const job = await service.createJob(req.body, req.user.userId);

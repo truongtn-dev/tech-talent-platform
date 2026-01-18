@@ -7,6 +7,16 @@ const ChallengeSchema = new mongoose.Schema(
             ref: "Job",
             index: true,
         },
+        createdBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            index: true,
+        },
+        isPublic: {
+            type: Boolean,
+            default: false, // Private by default, only admins can set to true
+        },
         title: { type: String, required: true },
         description: { type: String, required: true },
         difficulty: {

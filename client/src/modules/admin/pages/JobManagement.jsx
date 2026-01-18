@@ -25,7 +25,7 @@ import "../../../styles/admin.css";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const JobManagement = () => {
   const [loading, setLoading] = useState(true);

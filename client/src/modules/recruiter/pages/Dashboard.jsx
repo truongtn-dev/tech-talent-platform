@@ -28,13 +28,14 @@ const RecruiterDashboard = () => {
         try {
             setLoading(true);
             const [statsRes, appsRes] = await Promise.all([
-                recruiterService.getStats(),
+                recruiterService.getDashboardStats(),
                 recruiterService.getApplications()
             ]);
             setStats(statsRes);
             // Show only top 5 recent apps
             setRecentApplications(appsRes.slice(0, 5));
         } catch (error) {
+            console.error('Dashboard fetch error:', error);
             message.error("Failed to load dashboard data");
         } finally {
             setLoading(false);
@@ -116,7 +117,7 @@ const RecruiterDashboard = () => {
             <Row gutter={[24, 24]}>
                 {dashboardStats.map((stat, index) => (
                     <Col xs={24} md={8} key={index}>
-                        <Card bordered={false} style={{ borderRadius: 20, background: stat.bg, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' }}>
+                        <Card variant="borderless" style={{ borderRadius: 20, background: stat.bg, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' }}>
                             <Skeleton loading={loading} active paragraph={{ rows: 1 }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <div>
@@ -152,7 +153,7 @@ const RecruiterDashboard = () => {
                 <Col lg={16}>
                     <Card
                         title={<span style={{ fontSize: 18, fontWeight: 700 }}>Priority Candidates</span>}
-                        bordered={false}
+                        variant="borderless"
                         style={{ borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}
                         extra={<Button type="link" onClick={() => navigate('/recruiter/applications')} style={{ color: '#4F46E5', fontWeight: 600 }}>View All</Button>}
                     >
@@ -168,7 +169,7 @@ const RecruiterDashboard = () => {
                 <Col lg={8}>
                     <Card
                         title={<span style={{ fontSize: 18, fontWeight: 700 }}>Quick Actions</span>}
-                        bordered={false}
+                        variant="borderless"
                         style={{ borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}
                     >
                         <Space direction="vertical" style={{ width: '100%' }} size="middle">

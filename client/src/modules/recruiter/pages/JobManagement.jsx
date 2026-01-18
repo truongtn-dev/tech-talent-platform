@@ -15,16 +15,20 @@ import {
 import dayjs from "dayjs";
 import RecruiterLayout from "../components/RecruiterLayout";
 import recruiterService from "../api";
+import challengeService from "../../../services/challengeService";
 import ImageUpload from "../../../components/common/ImageUpload";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
+import ChallengeFormModal from "../../../components/shared/ChallengeFormModal";
 
 const { Title, Text } = Typography;
 
 const RecruiterJobManagement = () => {
     const [jobs, setJobs] = useState([]);
+    const [challenges, setChallenges] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isChallengeModalVisible, setIsChallengeModalVisible] = useState(false);
     const [editingJob, setEditingJob] = useState(null);
     const [searchText, setSearchText] = useState("");
     const [form] = Form.useForm();
@@ -51,6 +55,7 @@ const RecruiterJobManagement = () => {
 
     useEffect(() => {
         fetchJobs();
+        fetchChallenges();
     }, []);
 
     const fetchJobs = async () => {
@@ -64,6 +69,19 @@ const RecruiterJobManagement = () => {
             setLoading(false);
         }
     };
+
+    const fetchChallenges = async () => {
+        try {
+            const data = await challengeService.getAll();
+            setChallenges(data);
+        } catch (error) {
+            console.error("Failed to load challenges");
+        }
+    };
+
+    // ... handleTitleChange, handleFormSubmit ...
+
+
 
     const handleTitleChange = (title) => {
         if (editingJob || !title) return;
@@ -387,6 +405,27 @@ const RecruiterJobManagement = () => {
                                 </Select>
                             </Form.Item>
 
+                            <Form.Item name="challengeId" label="Default Assessment">
+                                <Input.Group compact style={{ display: 'flex', gap: 8 }}>
+                                    <Form.Item name="challengeId" noStyle>
+                                        <Select placeholder="Select a coding challenge" allowClear style={{ flex: 1 }}>
+                                            {challenges.map(ch => (
+                                                <Select.Option key={ch._id} value={ch._id}>
+                                                    {ch.title} ({ch.difficulty})
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                    <Button
+                                        type="dashed"
+                                        icon={<PlusOutlined />}
+                                        onClick={() => setIsChallengeModalVisible(true)}
+                                    >
+                                        Create
+                                    </Button>
+                                </Input.Group>
+                            </Form.Item>
+
                             <Form.Item name="applicationDeadline" label="Deadline">
                                 <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" suffixIcon={<CalendarOutlined />} />
                             </Form.Item>
@@ -470,6 +509,26 @@ const RecruiterJobManagement = () => {
                     </div>
                 </Form>
             </Modal>
+
+            {/* Challenge Creation Modal */}
+            <ChallengeFormModal
+                visible={isChallengeModalVisible}
+                onCancel={() => setIsChallengeModalVisible(false)}
+                onSuccess={async (challengeData, editId) => {
+                    try {
+                        const newChallenge = await recruiterService.createChallenge(challengeData);
+                        message.success('Challenge created successfully!');
+                        setIsChallengeModalVisible(false);
+                        // Refresh challenges list
+                        await fetchChallenges();
+                        // Auto-select the newly created challenge in the form
+                        form.setFieldsValue({ challengeId: newChallenge._id });
+                    } catch (error) {
+                        message.error(error.response?.data?.message || 'Failed to create challenge');
+                    }
+                }}
+                isAdmin={false}
+            />
         </RecruiterLayout>
     );
 };

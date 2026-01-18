@@ -24,6 +24,7 @@ router.get("/applications", controller.getMyApplications);
 router.put("/applications/:id/status", controller.updateApplicationStatus);
 
 // Interview Management
+router.get("/interviewers", controller.getInterviewers); // Add this BEFORE interviews/:id
 router.get("/interviews", controller.getInterviews);
 router.post("/interviews", controller.scheduleInterview);
 router.put("/interviews/:id", controller.updateInterview);

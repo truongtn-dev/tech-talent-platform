@@ -1,3 +1,5 @@
+import * as faceapi from '@vladmandic/face-api';
+
 const proctoringService = {
     // Detect if user switches tab or minimizes window
     monitorVisibility: (onFlag) => {
@@ -29,6 +31,32 @@ const proctoringService = {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }
+    },
+
+    // Load AI Models
+    loadModels: async () => {
+        try {
+            // Using Tiny Face Detector for performance
+            await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+            console.log("FaceAPI Models Loaded");
+        } catch (error) {
+            console.error("Failed to load models", error);
+        }
+    },
+
+    // Check for Face
+    detectFace: async (videoElement) => {
+        if (!videoElement || videoElement.paused || videoElement.ended) return null;
+
+        const detections = await faceapi.detectAllFaces(videoElement, new faceapi.TinyFaceDetectorOptions());
+        const faceCount = detections.length;
+
+        if (faceCount === 0) {
+            return { status: "NO_FACE", message: "No face detected in camera view!" };
+        } else if (faceCount > 1) {
+            return { status: "MULTIPLE_FACES", message: "Multiple faces detected. Suspicious activity." };
+        }
+        return { status: "OK", message: "Face detected." };
     }
 };
 

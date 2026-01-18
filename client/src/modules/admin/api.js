@@ -59,6 +59,15 @@ const adminService = {
     getChallenges: async () => {
         return await http.get("/challenges");
     },
+    createChallenge: async (data) => {
+        return await http.post("/challenges", data);
+    },
+    updateChallenge: async (id, data) => {
+        return await http.put(`/challenges/${id}`, data);
+    },
+    deleteChallenge: async (id) => {
+        return await http.delete(`/challenges/${id}`);
+    },
 
     // Blog Management
     getBlogs: async () => {

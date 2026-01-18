@@ -2,97 +2,269 @@ import vm from "vm";
 import Challenge from "./challenge.model.js";
 import Submission from "./submission.model.js";
 import Application from "../applications/application.model.js";
+import TestAssignment from "./testAssignment.model.js";
 import { emitToUser } from "../utils/socket.js";
 import { createNotification } from "../notifications/notification.service.js";
+
+// Duplicate import removed
 
 export const getChallengeDetails = async (id) => {
     return await Challenge.findById(id);
 };
 
-export const getAllChallenges = async () => {
-    return await Challenge.find().select("title difficulty");
+export const getTestAssignment = async (id) => {
+    return await TestAssignment.findById(id).populate("challengeId");
 };
 
-export const runCode = async (code, language, input) => {
+export const getAllChallenges = async (userId, userRole) => {
+    // If userId provided, filter to show user's challenges + public challenges
+    // Otherwise return all public challenges
+    let query = {};
+
+    if (userId && userRole) {
+        if (userRole === "ADMIN") {
+            // Admins see all challenges
+            query = {};
+        } else if (userRole === "RECRUITER") {
+            // Recruiters see their own + public
+            query = { $or: [{ createdBy: userId }, { isPublic: true }] };
+        } else {
+            // Others see only public
+            query = { isPublic: true };
+        }
+    } else {
+        // Default: public only
+        query = { isPublic: true };
+    }
+
+    return await Challenge.find(query).select("title difficulty baseScore isPublic createdBy").populate("createdBy", "email");
+};
+
+export const createChallenge = async (data, userId, userRole) => {
+    // Only admins can create public challenges
+    const isPublic = userRole === "ADMIN" && data.isPublic === true;
+
+    return await Challenge.create({
+        ...data,
+        createdBy: userId,
+        isPublic
+    });
+};
+
+export const updateChallenge = async (id, data, userId, userRole) => {
+    const challenge = await Challenge.findById(id);
+    if (!challenge) throw new Error("Challenge not found");
+
+    // Permission check: Admins can edit all, Recruiters can only edit their own
+    if (userRole !== "ADMIN" && challenge.createdBy.toString() !== userId) {
+        throw new Error("Unauthorized: You can only edit your own challenges");
+    }
+
+    // Only admins can change isPublic status
+    if (userRole !== "ADMIN") {
+        delete data.isPublic;
+    }
+
+    Object.assign(challenge, data);
+    return await challenge.save();
+};
+
+export const deleteChallenge = async (id, userId, userRole) => {
+    const challenge = await Challenge.findById(id);
+    if (!challenge) throw new Error("Challenge not found");
+
+    // Permission check: Admins can delete all, Recruiters can only delete their own
+    if (userRole !== "ADMIN" && challenge.createdBy.toString() !== userId) {
+        throw new Error("Unauthorized: You can only delete your own challenges");
+    }
+
+    return await challenge.deleteOne();
+};
+
+export const runCode = async (code, language, challengeId) => {
     if (language !== "javascript") {
         throw new Error("Currently only JavaScript is supported for execution");
     }
 
-    const script = new vm.Script(code);
-    const context = vm.createContext({ console });
+    const challenge = await Challenge.findById(challengeId);
+    if (!challenge) throw new Error("Challenge not found");
 
-    try {
-        // In a real prod env, we'd use a more robust sandbox like 'vm2' or isolated-vm
-        // and handle input/output more formally.
-        // This is a simplified version for the prototype.
-        const result = script.runInContext(context, { timeout: 2000 });
-        return result;
-    } catch (error) {
-        return `Error: ${error.message}`;
+    const context = vm.createContext({ console });
+    const results = [];
+
+    let index = 0;
+    for (const testCase of challenge.testCases) {
+        const isHidden = index >= 2;
+        index++;
+
+        // Extract variable names from "nums = [...], target = 9"
+        // Regex matches strictly "VARIABLE ="
+        const paramNames = (testCase.input.match(/([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=/g) || [])
+            .map(s => s.replace('=', '').trim());
+
+        const wrappedCode = `
+          ${code}
+          // Auto-alias 'twoSum' to 'solution' for compatibility
+          if (typeof solution === 'undefined' && typeof twoSum === 'function') {
+              var solution = twoSum;
+          }
+
+          if (typeof solution === 'undefined') {
+              throw new Error("Function 'solution' or 'twoSum' is not defined.");
+          }
+
+          // Execute the input assignments directly to define variables
+          // We wrap in a block to ensure scope is managed if using let/const (but inputs are usually globals in this context)
+          ${testCase.input};
+          
+          // Call solution with the extracted parameter names
+          solution(${paramNames.join(', ')});
+        `;
+
+        try {
+            const script = new vm.Script(wrappedCode);
+            const sandbox = vm.createContext({ console });
+
+            const output = script.runInContext(sandbox, { timeout: 1000 });
+
+            // Normalize results
+            // actual: we stringify the JS result (e.g., [0,1] -> "[0,1]")
+            const actual = JSON.stringify(output);
+
+            // expected: comes from DB as string "[0,1]". We TRIM it.
+            // We assume DB stores JSON-stringified format for array/object results.
+            const normalizedExpected = testCase.expectedOutput.trim();
+
+            if (isHidden) {
+                results.push({
+                    input: "Hidden Case",
+                    expected: "Hidden",
+                    actual: "Hidden",
+                    passed: actual === normalizedExpected,
+                    isHidden: true
+                });
+            } else {
+                results.push({
+                    input: testCase.input,
+                    expected: normalizedExpected,
+                    actual: actual || "undefined",
+                    passed: actual === normalizedExpected,
+                    isHidden: false
+                });
+            }
+        } catch (error) {
+            if (isHidden) {
+                results.push({
+                    input: "Hidden Case",
+                    expected: "Hidden",
+                    actual: "Runtime Error",
+                    passed: false,
+                    isHidden: true
+                });
+            } else {
+                results.push({
+                    input: testCase.input,
+                    expected: testCase.expectedOutput,
+                    actual: `Error: ${error.message}`,
+                    passed: false,
+                    isHidden: false
+                });
+            }
+        }
     }
+
+    return results;
 };
 
 export const submitChallenge = async (submissionData, user) => {
-    const { challengeId, applicationId, code, language } = submissionData;
+    // 1. Validate Assignment
+    // We expect assignmentId or we derive it from applicationId
+    const { assignmentId, code, language } = submissionData;
 
-    const challenge = await Challenge.findById(challengeId);
-    if (!challenge) throw new Error("Challenge not found");
+    // Find assignment
+    const assignment = await TestAssignment.findById(assignmentId)
+        .populate("challengeId")
+        .populate("applicationId");
+
+    if (!assignment) throw new Error("Test Assignment not found");
+    if (assignment.candidateId.toString() !== user.userId) throw new Error("Unauthorized");
+    if (assignment.status === "SUBMITTED" || assignment.status === "GRADED") {
+        throw new Error("Test already submitted");
+    }
+
+    const challenge = assignment.challengeId;
+    if (!challenge) throw new Error("Challenge data missing");
 
     const results = {
         testCasesPassed: 0,
         totalTestCases: challenge.testCases.length,
         score: 0,
-        executionTime: 0,
+        executionTime: 0, // We can sum this up if runCode returns it, else 0
     };
 
-    // Run against test cases
-    for (const testCase of challenge.testCases) {
-        const startTime = Date.now();
-        try {
-            // Very simple execution logic: assumes code defines solution(input)
-            const fullCode = `${code}\n solution(${testCase.input});`;
-            const output = await runCode(fullCode, language, testCase.input);
+    // 2. Run Test Cases (reuse the robust runCode logic)
+    // pass challenge._id to runCode which handles fetching and iterating
+    const execResults = await runCode(code, language, challenge._id);
 
-            const expected = testCase.expectedOutput.trim();
-            const actual = String(output).trim();
-
-            if (actual === expected) {
-                results.testCasesPassed++;
-            }
-        } catch (error) {
-            console.error("Test Case Error:", error);
-        }
-        results.executionTime += (Date.now() - startTime);
-    }
-
+    results.totalTestCases = execResults.length;
+    results.testCasesPassed = execResults.filter(r => r.passed).length;
     results.score = Math.round((results.testCasesPassed / results.totalTestCases) * challenge.baseScore);
 
+    // (Optional) We could log detailed per-case results if we wanted to store them in submission
+    // submission.result.details = execResults; (? schema dependent)
+
+    // 3. Save Submission
     const submission = await Submission.create({
-        challengeId,
+        challengeId: challenge._id,
         candidateId: user.userId,
-        applicationId,
+        applicationId: assignment.applicationId._id,
         code,
         language,
-        results,
+        result: results, // schema uses 'result' object? Checking schema... yes 'result'
         status: "COMPLETED",
     });
 
-    // Update application status or score if needed
-    const updatedApp = await Application.findByIdAndUpdate(applicationId, {
-        status: results.score > 0 ? "SCREENED" : "APPLIED"
-    }).populate("jobId");
+    // 4. Update Assignment
+    assignment.status = "GRADED";
+    assignment.submittedAt = new Date();
+    assignment.score = results.score;
+    assignment.submission = { code, language };
+    await assignment.save();
 
-    // Notify recruiter
-    if (updatedApp) {
+    // 5. Update Application Status
+    const app = await Application.findById(assignment.applicationId._id).populate("jobId");
+    if (app) {
+        app.status = "TEST_SUBMITTED";
+        app.score.codingTest = results.score; // Consolidate score
+        app.history.push({
+            status: "TEST_SUBMITTED",
+            updatedBy: user.userId,
+            note: `Test Score: ${results.score}`,
+            at: new Date()
+        });
+        await app.save();
+
+        // Notify recruiter
         const notifData = {
-            userId: updatedApp.jobId.recruiterId.toString(),
+            userId: app.jobId.recruiterId.toString(),
             title: "Technical Test Submitted",
-            message: `Candidate ${user.email} finished the test for ${updatedApp.jobId.title} (Score: ${results.score})`,
+            message: `Candidate ${user.email} finished test for ${app.jobId.title} (Score: ${results.score})`,
             type: "TEST_SUBMITTED",
-            link: `/recruiter/applications?jobId=${updatedApp.jobId._id}`
+            link: `/recruiter/applications/${app._id}`
         };
         await createNotification(notifData);
-        emitToUser(updatedApp.jobId.recruiterId.toString(), "NEW_NOTIFICATION", notifData);
+        emitToUser(app.jobId.recruiterId.toString(), "NEW_NOTIFICATION", notifData);
+
+        // Notify candidate about their test result
+        const candidateNotif = {
+            userId: app.candidateId.toString(),
+            title: "Test Completed",
+            message: `Your coding challenge for ${app.jobId.title} has been submitted! Score: ${results.score}/${challenge.baseScore}`,
+            type: "TEST_RESULT",
+            link: `/my-applications`
+        };
+        await createNotification(candidateNotif);
+        emitToUser(app.candidateId.toString(), "NEW_NOTIFICATION", candidateNotif);
     }
 
     return submission;

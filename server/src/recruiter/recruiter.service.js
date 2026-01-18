@@ -3,6 +3,8 @@ import Application from "../applications/application.model.js";
 import User from "../modules/auth/user.model.js";
 import Interview from "../interviews/interview.model.js";
 import mongoose from "mongoose";
+import { createNotification } from "../notifications/notification.service.js";
+import { emitToUser } from "../utils/socket.js";
 
 export const getMyJobs = async (userId) => {
     return Job.aggregate([
@@ -25,12 +27,35 @@ export const getMyJobs = async (userId) => {
     ]);
 };
 
+export const getInterviewers = async () => {
+    return User.find({ role: "INTERVIEWER" }).select("email profile avatar");
+};
+
 export const createJob = async (jobData, userId) => {
-    return Job.create({
+    const job = await Job.create({
         ...jobData,
         recruiterId: userId,
-        status: "PENDING" // Default to pending approval
+        status: jobData.status || "PENDING"
     });
+
+    // Notify all admins about new job pending approval
+    if (job.status === "PENDING") {
+        const admins = await User.find({ role: "ADMIN" }).select("_id");
+        const adminNotifications = admins.map(async (admin) => {
+            const notifData = {
+                userId: admin._id.toString(),
+                title: "New Job Pending Approval",
+                message: `Recruiter has posted a new job: ${job.title} at ${job.company}`,
+                type: "JOB_PENDING",
+                link: `/admin/jobs`
+            };
+            await createNotification(notifData);
+            emitToUser(admin._id.toString(), "NEW_NOTIFICATION", notifData);
+        });
+        await Promise.all(adminNotifications);
+    }
+
+    return job;
 };
 
 export const updateJob = async (id, jobData, userId) => {
@@ -149,9 +174,9 @@ export const scheduleInterview = async (data, recruiterId) => {
         await interview.save({ session });
 
         // Update Application
-        app.status = "INTERVIEW";
+        app.status = "INTERVIEW_SCHEDULED";
         app.interviewId = interview._id;
-        app.timeline.push({ status: "INTERVIEW", at: new Date() });
+        app.timeline.push({ status: "INTERVIEW_SCHEDULED", at: new Date() });
         await app.save({ session });
 
         await session.commitTransaction();

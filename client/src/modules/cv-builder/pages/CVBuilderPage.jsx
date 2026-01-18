@@ -245,7 +245,7 @@ const CVBuilderPage = () => {
                                     border: "none",
                                     overflow: "hidden"
                                 }}
-                                bodyStyle={{ padding: 0, display: "flex", justifyContent: "center", background: "#525659", padding: "20px" }}
+                                bodyStyle={{ display: "flex", justifyContent: "center", background: "#525659", padding: "20px" }}
                             >
                                 <div style={{ transform: "scale(0.9)", transformOrigin: "top center" }}>
                                     <CVPreview data={cvData} />

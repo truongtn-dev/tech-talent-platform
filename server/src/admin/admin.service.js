@@ -3,6 +3,8 @@ import Job from "../jobs/job.model.js";
 import Application from "../applications/application.model.js";
 import Profile from "../profiles/profile.model.js";
 import bcrypt from "bcrypt";
+import { createNotification } from "../notifications/notification.service.js";
+import { emitToUser } from "../utils/socket.js";
 
 const requireAdmin = (user) => {
   if (user.role !== "ADMIN") {
@@ -143,7 +145,39 @@ export const approveJob = async (jobId, user) => {
   if (!job) throw new Error("Job not found");
 
   job.status = "PUBLISHED";
-  return job.save();
+  await job.save();
+
+  // Notify all CANDIDATE users about new job posting
+  const candidates = await User.find({ role: "CANDIDATE" }).select("_id");
+
+  const notificationPromises = candidates.map(async (candidate) => {
+    const notifData = {
+      userId: candidate._id.toString(),
+      title: "New Job Posted",
+      message: `A new ${job.title} position is now available at ${job.company}. Apply now!`,
+      type: "NEW_JOB",
+      link: `/jobs/${job.slug || job._id}`
+    };
+    await createNotification(notifData);
+    emitToUser(candidate._id.toString(), "NEW_NOTIFICATION", notifData);
+  });
+
+  await Promise.all(notificationPromises);
+
+  // Also notify the recruiter that their job was approved
+  if (job.recruiterId) {
+    const recruiterNotif = {
+      userId: job.recruiterId.toString(),
+      title: "Job Approved",
+      message: `Your job posting "${job.title}" has been approved and is now live!`,
+      type: "JOB_APPROVED",
+      link: `/recruiter/jobs`
+    };
+    await createNotification(recruiterNotif);
+    emitToUser(job.recruiterId.toString(), "NEW_NOTIFICATION", recruiterNotif);
+  }
+
+  return job;
 };
 
 export const hideJob = async (jobId, user) => {

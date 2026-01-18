@@ -1,19 +1,18 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import authService from "../services/authService";
 
-const AuthContext = createContext(null);
+export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(() => {
+        const savedUser = authService.getCurrentUser();
+        return savedUser || null;
+    });
+    const [loading, setLoading] = useState(false); // No longer loading asynchronously for user check
 
     useEffect(() => {
-        // Check for saved user on mount
-        const savedUser = authService.getCurrentUser();
-        if (savedUser) {
-            setUser(savedUser);
-        }
-        setLoading(false);
+        // Still keep the effect if you want to sync with tabs or something, 
+        // but synchronous init is better for child providers.
     }, []);
 
     const login = async (credentials) => {

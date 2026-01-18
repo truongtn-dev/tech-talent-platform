@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Typography, Spin, Empty, Button, Steps, Tag, Row, Col, Divider } from "antd";
+import { Card, Typography, Spin, Empty, Button, Steps, Tag, Row, Col, Divider, Space } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import applicationService from "../../../services/applicationService";
 import {
@@ -191,55 +191,59 @@ const MyApplicationsPage = () => {
                                     {/* Evaluation Links & Info */}
                                     <div style={{ marginTop: 24, display: 'flex', flexWrap: 'wrap', gap: 16 }}>
                                         {/* Technical Test Section */}
-                                        {app.jobId?.challengeId && (
+                                        {/* Show only if Test is Assigned or Submitted */}
+                                        {(app.status === 'TEST_ASSIGNED' || app.status === 'TEST_SUBMITTED' || app.testAssignmentId) && (
                                             <Card size="small" style={{ flex: 1, minWidth: 280, borderRadius: 8, border: '1px solid #e2e8f0' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <Space>
                                                         <ClockCircleOutlined style={{ color: '#10B981' }} />
                                                         <Text strong>Technical Assessment</Text>
                                                     </Space>
-                                                    {app.status === 'APPLIED' || app.status === 'SCREENED' ? (
+                                                    {app.status === 'TEST_ASSIGNED' ? (
                                                         <Button
                                                             type="primary"
                                                             size="small"
                                                             danger
                                                             style={{ background: '#ED1B2F', borderRadius: 4 }}
-                                                            onClick={() => navigate(`/challenge/${app.jobId.challengeId}`)}
+                                                            onClick={() => navigate(`/challenge/${app.testAssignmentId?._id || app.testAssignmentId}`)}
+                                                        // Handle both populated object or ID string
                                                         >
-                                                            Start Test
+                                                            Take Test
                                                         </Button>
                                                     ) : (
-                                                        <Tag color="green">Completed (Score: {app.testScore || 0})</Tag>
+                                                        <Tag color="green">Submitted (Score: {app.score?.codingTest || 0})</Tag>
                                                     )}
                                                 </div>
                                             </Card>
                                         )}
 
                                         {/* Interview Section */}
-                                        {app.interview && (
+                                        {(app.status === 'INTERVIEW_SCHEDULED' || app.status === 'INTERVIEW_COMPLETED') && (
                                             <Card size="small" style={{ flex: 1, minWidth: 280, borderRadius: 8, border: '1px solid #e2e8f0' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <Space>
                                                         <CheckCircleOutlined style={{ color: '#3b82f6' }} />
                                                         <Text strong>Interview Schedule</Text>
                                                     </Space>
-                                                    {app.interview.status === 'SCHEDULED' ? (
+                                                    {app.status === 'INTERVIEW_SCHEDULED' ? (
                                                         <Button
                                                             type="primary"
                                                             size="small"
-                                                            onClick={() => window.open(app.interview.meetingLink, '_blank')}
-                                                            disabled={!app.interview.meetingLink}
+                                                            onClick={() => window.open(app.interviewId?.meetingLink, '_blank')}
+                                                            disabled={!app.interviewId?.meetingLink}
                                                             style={{ borderRadius: 4 }}
                                                         >
                                                             Join Meeting
                                                         </Button>
                                                     ) : (
-                                                        <Tag color="blue">{app.interview.status}</Tag>
+                                                        <Tag color="purple">Completed (Score: {app.score?.interview || 0})</Tag>
                                                     )}
                                                 </div>
-                                                <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
-                                                    {new Date(app.interview.scheduledAt).toLocaleString()}
-                                                </div>
+                                                {app.interviewId?.scheduledAt && (
+                                                    <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
+                                                        {new Date(app.interviewId.scheduledAt).toLocaleString()}
+                                                    </div>
+                                                )}
                                             </Card>
                                         )}
                                     </div>

@@ -1,8 +1,16 @@
 import http from "./http";
 
 const challengeService = {
+    getAll: async () => {
+        return await http.get("/challenges");
+    },
+
     getChallenge: async (id) => {
         return await http.get(`/challenges/${id}`);
+    },
+
+    getAssignment: async (id) => {
+        return await http.get(`/challenges/assignment/${id}`);
     },
 
     runCode: async (data) => {

@@ -8,7 +8,7 @@ import { createNotification } from "../notifications/notification.service.js";
 export const getAvailableApplications = async () => {
     // Get applications that are SCREENED or TEST_SENT and don't have an interviewId yet
     return Application.find({
-        status: { $in: ["SCREENED", "TEST_SENT"] },
+        status: { $in: ["SCREENED", "TEST_ASSIGNED", "TEST_SUBMITTED"] },
         interviewId: { $exists: false }
     })
         .populate("candidateId", "email avatar")
@@ -22,21 +22,52 @@ export const createInterviewSession = async (data, interviewerId) => {
     const application = await Application.findById(applicationId);
     if (!application) throw new Error("Application not found");
 
-    const interview = await Interview.create({
-        applicationId,
-        candidateId: application.candidateId,
-        interviewerId,
-        scheduledAt,
-        meetingLink,
-        status: "SCHEDULED"
-    });
+    // Check for existing interview to prevent E11000 duplicate key error
+    let interview = await Interview.findOne({ applicationId });
 
-    // Update application
-    application.interviewId = interview._id;
-    application.status = "INTERVIEW";
-    if (!application.timeline) application.timeline = [];
-    application.timeline.push({ status: "INTERVIEW", at: new Date() });
+    if (interview) {
+        // Update existing interview
+        interview.interviewerId = interviewerId;
+        if (scheduledAt) interview.scheduledAt = scheduledAt;
+        if (meetingLink) interview.meetingLink = meetingLink;
+        // Ensure status is valid for a re-schedule? defaulting keeping as is or ensure it's not cancelled if we want to revive?
+        // simple update for now.
+        await interview.save();
+    } else {
+        // Create new
+        interview = await Interview.create({
+            applicationId,
+            candidateId: application.candidateId,
+            interviewerId,
+            scheduledAt,
+            meetingLink,
+            status: "SCHEDULED"
+        });
+    }
+
+    // Ensure Application is linked and status is correct
+    if (!application.interviewId || application.interviewId.toString() !== interview._id.toString()) {
+        application.interviewId = interview._id;
+    }
+
+    // Update status if formerly something else
+    if (application.status !== "INTERVIEW" && application.status !== "INTERVIEW_COMPLETED") {
+        application.status = "INTERVIEW";
+        if (!application.timeline) application.timeline = [];
+        application.timeline.push({ status: "INTERVIEW", at: new Date() });
+    }
     await application.save();
+
+    // Notify Candidate
+    const notifData = {
+        userId: application.candidateId.toString(),
+        title: "Interview Scheduled",
+        message: `An interview has been scheduled for ${new Date(scheduledAt).toLocaleString()}. Check your dashboard for details.`,
+        type: "INTERVIEW_SCHEDULED",
+        link: `/my-applications`
+    };
+    await createNotification(notifData);
+    emitToUser(application.candidateId.toString(), "NEW_NOTIFICATION", notifData);
 
     return interview;
 };
@@ -94,22 +125,47 @@ export const updateInterviewSession = async (id, data, userId) => {
 };
 
 export const submitEvaluation = async (id, data, userId) => {
-    const application = await Application.findById(id).populate("jobId");
-    if (!application) throw new Error("Application not found");
+    // 1. Find the Interview Session
+    const interview = await Interview.findById(id).populate("applicationId");
+    if (!interview) throw new Error("Interview not found");
+    if (interview.interviewerId.toString() !== userId) throw new Error("Unauthorized");
 
-    application.status = "COMPLETED"; // Or EVALUATED
-    await application.save();
+    // 2. Update Interview
+    interview.score = data.score; // Assumption: data.score is the calculated score
+    interview.note = data.notes;
+    interview.status = "COMPLETED";
+    // If you have a structured evaluation, save it too (add to schema if needed)
+    // interview.evaluation = data; 
+    await interview.save();
 
-    // Notify Recruiter
-    const notifData = {
-        userId: application.jobId.recruiterId.toString(),
-        title: "Interview Evaluated",
-        message: `Technical interview for ${application.candidateId?.email || 'Candidate'} has been evaluated.`,
-        type: "INTERVIEW_EVALUATED",
-        link: `/recruiter/applications?jobId=${application.jobId._id}`
-    };
-    await createNotification(notifData);
-    emitToUser(application.jobId.recruiterId.toString(), "NEW_NOTIFICATION", notifData);
+    // 3. Update Application
+    const application = await Application.findById(interview.applicationId._id).populate("jobId");
+    if (application) {
+        application.status = "INTERVIEW_COMPLETED";
+        if (!application.score) application.score = {};
+        application.score.interview = data.score; // Consolidate score
+        application.score.interviewNotes = data.notes;
+
+        if (!application.timeline) application.timeline = [];
+        application.timeline.push({
+            status: "INTERVIEW_COMPLETED",
+            at: new Date(),
+            note: `Interview completed. Score: ${data.score}`
+        });
+
+        await application.save();
+
+        // 4. Notify Recruiter
+        const notifData = {
+            userId: application.jobId.recruiterId.toString(),
+            title: "Interview Evaluated",
+            message: `Technical interview for ${application.candidateId?.email || 'Candidate'} has been evaluated. Score: ${data.score}`,
+            type: "INTERVIEW_EVALUATED",
+            link: `/recruiter/applications` // Simplified link
+        };
+        await createNotification(notifData);
+        emitToUser(application.jobId.recruiterId.toString(), "NEW_NOTIFICATION", notifData);
+    }
 
     return { message: "Evaluation submitted successfully", id };
 };

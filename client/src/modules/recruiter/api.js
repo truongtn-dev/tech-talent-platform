@@ -2,6 +2,7 @@ import http from "../../services/http";
 
 const recruiterService = {
     // Interviews
+    getInterviewers: () => http.get("/recruiter/interviewers"),
     getInterviews: async () => {
         const response = await http.get("/recruiter/interviews");
         return response; // http.js interceptor returns response.data
@@ -34,6 +35,12 @@ const recruiterService = {
     // Application Management
     getApplications: () => http.get("/recruiter/applications"),
     updateApplicationStatus: (id, status) => http.put(`/recruiter/applications/${id}/status`, { status }),
+
+    // Challenge Management
+    getMyChallenges: () => http.get("/challenges"), // Backend filters by user automatically
+    createChallenge: (data) => http.post("/challenges", data),
+    updateChallenge: (id, data) => http.put(`/challenges/${id}`, data),
+    deleteChallenge: (id) => http.delete(`/challenges/${id}`),
 };
 
 export default recruiterService;

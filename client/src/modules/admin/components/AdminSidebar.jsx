@@ -5,7 +5,8 @@ import {
     SettingOutlined,
     LogoutOutlined,
     AppstoreOutlined,
-    ReadOutlined
+    ReadOutlined,
+    CodeOutlined
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";

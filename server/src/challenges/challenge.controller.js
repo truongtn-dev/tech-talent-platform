@@ -2,8 +2,38 @@ import * as service from "./challenge.service.js";
 
 export const getAllChallenges = async (req, res) => {
     try {
-        const challenges = await service.getAllChallenges();
+        // Pass user context if authenticated (from optional authenticate middleware)
+        const userId = req.user?.userId;
+        const userRole = req.user?.role;
+        const challenges = await service.getAllChallenges(userId, userRole);
         res.json(challenges);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+export const createChallenge = async (req, res) => {
+    try {
+        const challenge = await service.createChallenge(req.body, req.user.userId, req.user.role);
+        res.status(201).json(challenge);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+export const updateChallenge = async (req, res) => {
+    try {
+        const challenge = await service.updateChallenge(req.params.id, req.body, req.user.userId, req.user.role);
+        res.json(challenge);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+export const deleteChallenge = async (req, res) => {
+    try {
+        await service.deleteChallenge(req.params.id, req.user.userId, req.user.role);
+        res.json({ message: "Challenge deleted" });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
@@ -18,11 +48,25 @@ export const getChallengeDetails = async (req, res) => {
     }
 };
 
+export const getTestAssignment = async (req, res) => {
+    try {
+        const assignment = await service.getTestAssignment(req.params.id);
+        if (!assignment) return res.status(404).json({ message: "Assignment not found" });
+        // Security check: ensure user owns this assignment
+        if (assignment.candidateId.toString() !== req.user.userId) {
+            return res.status(403).json({ message: "Unauthorized access to this test" });
+        }
+        res.json(assignment);
+    } catch (err) {
+        res.status(400).json({ message: "Error fetching assignment" });
+    }
+};
+
 export const runCode = async (req, res) => {
     try {
-        const { code, language, input } = req.body;
-        const output = await service.runCode(code, language, input);
-        res.json({ output });
+        const { code, language, challengeId } = req.body;
+        const results = await service.runCode(code, language, challengeId);
+        res.json({ results }); // Returning array of results
     } catch (err) {
         res.status(400).json({ message: err.message });
     }

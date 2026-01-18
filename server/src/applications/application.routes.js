@@ -12,5 +12,6 @@ router.get("/check/:jobId", authenticate, controller.checkStatus);
 // Recruiter/Admin
 router.get("/job/:jobId", authenticate, controller.applicationsByJob);
 router.put("/:id/status", authenticate, controller.updateStatus);
+router.put("/:id/assign-test", authenticate, controller.assignAppTest);
 
 export default router;

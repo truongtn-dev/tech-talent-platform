@@ -4,7 +4,7 @@ import cors from "cors";
 import authRoutes from "./modules/auth/auth.routes.js";
 import jobRoutes from "./jobs/job.routes.js";
 import applicationRoutes from "./applications/application.routes.js";
-import testRoutes from "./tests/test.routes.js";
+// import testRoutes from "./tests/test.routes.js"; // DEPRECATED
 import interviewRoutes from "./interviews/interview.routes.js";
 import adminRoutes from "./admin/admin.routes.js";
 import offerRoutes from "./offers/offer.routes.js";
@@ -36,7 +36,7 @@ app.get("/api/test-server", (req, res) => res.json({ status: "alive", time: new 
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
-app.use("/api/tests", testRoutes);
+// testRoutes removed (substituted by challenges)
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/offers", offerRoutes);

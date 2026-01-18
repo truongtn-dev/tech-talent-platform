@@ -16,6 +16,7 @@ import AdminDashboard from "./modules/admin/pages/Dashboard";
 import UserManagement from "./modules/admin/pages/UserManagement";
 import BlogManagement from "./modules/admin/pages/BlogManagement";
 import JobManagement from "./modules/admin/pages/JobManagement";
+import ChallengeManagement from "./modules/admin/pages/ChallengeManagement";
 import AdminRoute from "./modules/admin/AdminRoute";
 import RecruiterRoute from "./modules/recruiter/RecruiterRoute";
 import RecruiterDashboard from "./modules/recruiter/pages/Dashboard";
