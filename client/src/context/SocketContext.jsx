@@ -15,7 +15,7 @@ export const SocketProvider = ({ children }) => {
 
     const fetchNotifications = async () => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/notifications`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/notifications`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -35,7 +35,7 @@ export const SocketProvider = ({ children }) => {
             console.log('[Socket] User detected, initializing socket for userId:', user.userId);
             fetchNotifications();
 
-            const newSocket = io(import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+            const newSocket = io(import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
             setSocket(newSocket);
 
             newSocket.on('connect', () => {
@@ -69,9 +69,8 @@ export const SocketProvider = ({ children }) => {
         }
     }, [user]);
 
-    const markAllRead = async () => {
         try {
-            await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/notifications/read-all`, {
+            await fetch(`${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/notifications/read-all`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`

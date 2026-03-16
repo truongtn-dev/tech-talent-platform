@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance with default config
 const http = axios.create({
-    baseURL: "http://localhost:5000/api", // Adjust if your server port is different
+    baseURL: (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api", // Adjust if your server port is different
     headers: {
         "Content-Type": "application/json",
     },
