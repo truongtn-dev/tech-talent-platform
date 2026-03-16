@@ -20,7 +20,7 @@ const seed = async () => {
     await Profile.deleteMany();
 
     // ===== PASSWORD =====
-    const hashedPassword = await bcrypt.hash("123456", 10);
+    const hashedPassword = await bcrypt.hash("Techtalent123@", 10);
 
     // ===== USERS =====
     const admin = await User.create({
