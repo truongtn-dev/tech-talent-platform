@@ -75,19 +75,19 @@ export const seedData = async (req, res) => {
     
     const admin = await User.create({
       email: "admin@tech.com",
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       role: "ADMIN",
     });
 
     const recruiter = await User.create({
       email: "recruiter@tech.com",
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       role: "RECRUITER",
     });
 
     const candidate = await User.create({
       email: "candidate@tech.com",
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       role: "CANDIDATE",
     });
 
