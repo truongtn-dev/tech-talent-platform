@@ -1,4 +1,8 @@
 import * as authService from "./auth.service.js";
+import User from "./user.model.js";
+import Job from "../../jobs/job.model.js";
+import Profile from "../../profiles/profile.model.js";
+import bcrypt from "bcryptjs";
 
 export const register = async (req, res) => {
   try {
@@ -61,3 +65,58 @@ export const changePassword = async (req, res) => {
   }
 };
 
+export const seedData = async (req, res) => {
+  try {
+    // ===== PASSWORD =====
+    const hashedPassword = await bcrypt.hash("Techtalent123@", 10);
+
+    // ===== CLEAN & CREATE =====
+    await User.deleteMany({ email: { $in: ["admin@tech.com", "recruiter@tech.com", "candidate@tech.com"] } });
+    
+    const admin = await User.create({
+      email: "admin@tech.com",
+      password: hashedPassword,
+      role: "ADMIN",
+    });
+
+    const recruiter = await User.create({
+      email: "recruiter@tech.com",
+      password: hashedPassword,
+      role: "RECRUITER",
+    });
+
+    const candidate = await User.create({
+      email: "candidate@tech.com",
+      password: hashedPassword,
+      role: "CANDIDATE",
+    });
+
+    await Profile.create({
+      userId: candidate._id,
+      skills: ["JavaScript", "Node.js", "MongoDB", "React"],
+      experienceYears: 2,
+      summary: "Junior full-stack developer with MERN experience",
+    });
+
+    await Job.create({
+      recruiterId: recruiter._id,
+      title: "Junior MERN Stack Developer",
+      description: "Looking for a junior MERN developer with basic backend and frontend skills.",
+      skillsRequired: ["JavaScript", "Node.js", "MongoDB"],
+      level: "JUNIOR",
+      location: "Ho Chi Minh City",
+      status: "PUBLISHED",
+    });
+
+    res.json({ 
+      message: "Database Seeded Successfully!", 
+      accounts: {
+        admin: "admin@tech.com / Techtalent123@",
+        recruiter: "recruiter@tech.com / Techtalent123@",
+        candidate: "candidate@tech.com / Techtalent123@"
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Seed failed: " + err.message });
+  }
+};

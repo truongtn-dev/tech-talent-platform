@@ -11,6 +11,7 @@ router.post("/register", uploadAvatar.single("avatar"), authController.register)
 router.post("/login", authController.login);
 router.put("/me/avatar", authenticate, uploadAvatar.single("avatar"), authController.updateAvatar);
 router.put("/me/password", authenticate, authController.changePassword);
+router.get("/seed-data", authController.seedData);
 
 console.log("Auth routes loaded");
 
