@@ -69,6 +69,7 @@ export const SocketProvider = ({ children }) => {
         }
     }, [user]);
 
+    const markAllRead = async () => {
         try {
             await fetch(`${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/notifications/read-all`, {
                 method: 'POST',
