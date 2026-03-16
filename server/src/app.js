@@ -28,7 +28,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*", // Or you can use ["https://tech-talent-platform.vercel.app"]
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/api/test-server", (req, res) => res.json({ status: "alive", time: new Date() }));
