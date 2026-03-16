@@ -63,9 +63,9 @@ const seed = async () => {
 
     console.log("Seed completed successfully");
     console.log("Login accounts:");
-    console.log("ADMIN      -> admin@tech.com / 123456");
-    console.log("RECRUITER  -> recruiter@tech.com / 123456");
-    console.log("CANDIDATE  -> candidate@tech.com / 123456");
+    console.log("ADMIN      -> admin@tech.com / Techtalent123@");
+    console.log("RECRUITER  -> recruiter@tech.com / Techtalent123@");
+    console.log("CANDIDATE  -> candidate@tech.com / Techtalent123@");
     console.log("Job ID:", job._id.toString());
 
     process.exit();
