@@ -16,7 +16,7 @@ import AdminLayout from "../components/AdminLayout";
 import "../../../styles/admin.css";
 
 // React Quill for Description
-import { useQuill } from "react-quilljs";
+import useQuill from "../../../hooks/useQuill";
 import "quill/dist/quill.snow.css";
 
 const { Title, Text } = Typography;

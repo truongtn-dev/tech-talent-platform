@@ -17,7 +17,7 @@ import RecruiterLayout from "../components/RecruiterLayout";
 import recruiterService from "../api";
 import challengeService from "../../../services/challengeService";
 import ImageUpload from "../../../components/common/ImageUpload";
-import { useQuill } from "react-quilljs";
+import useQuill from "../../../hooks/useQuill";
 import "quill/dist/quill.snow.css";
 import ChallengeFormModal from "../../../components/shared/ChallengeFormModal";
 

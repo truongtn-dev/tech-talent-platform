@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Form, Input, Select, Button, Space, message, InputNumber, Checkbox } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useQuill } from 'react-quilljs';
+import useQuill from '../../hooks/useQuill';
 import 'quill/dist/quill.snow.css';
 
 const { TextArea } = Input;

@@ -21,7 +21,7 @@ import {
   SearchOutlined,
   FileTextOutlined
 } from "@ant-design/icons";
-import { useQuill } from "react-quilljs";
+import useQuill from "../../../hooks/useQuill";
 import "quill/dist/quill.snow.css";
 
 import adminService from "../api";

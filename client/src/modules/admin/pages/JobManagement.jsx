@@ -22,7 +22,7 @@ import ImageUpload from "../../../components/common/ImageUpload";
 import "../../../styles/admin.css";
 
 // ✅ React 19–safe editor
-import { useQuill } from "react-quilljs";
+import useQuill from "../../../hooks/useQuill";
 import "quill/dist/quill.snow.css";
 
 const { Title, Text } = Typography;
