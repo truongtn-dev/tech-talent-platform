@@ -23,41 +23,18 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadDir = "uploads/cvs";
-
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Keep CVs on disk for now (or move to Cloudinary later if needed)
-const diskStorage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename(req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const name = `${Date.now()}-${Math.round(Math.random() * 1000000000)}${ext}`;
-    cb(null, name);
+// Configure Cloudinary Storage for CVs (PDF, DOC, DOCX)
+const cvStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "tech-talent-platform/cvs",
+    resource_type: "raw", // Required for PDF/DOCX to be stored as files
+    allowed_formats: ["pdf", "doc", "docx"],
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  const allowed = [
-    "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ];
-
-  if (allowed.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Only PDF/DOC/DOCX allowed"));
-  }
-};
-
 export const uploadCV = multer({
-  storage: diskStorage,
-  fileFilter,
+  storage: cvStorage,
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
 });
 
