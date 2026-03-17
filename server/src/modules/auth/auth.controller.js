@@ -101,8 +101,9 @@ export const seedData = async (req, res) => {
     await Job.create({
       recruiterId: recruiter._id,
       title: "Junior MERN Stack Developer",
+      company: "Tech Talent Corp",
       description: "Looking for a junior MERN developer with basic backend and frontend skills.",
-      skillsRequired: ["JavaScript", "Node.js", "MongoDB"],
+      skills: ["JavaScript", "Node.js", "MongoDB"],
       level: "JUNIOR",
       location: "Ho Chi Minh City",
       status: "PUBLISHED",
