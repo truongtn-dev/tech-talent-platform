@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 
@@ -7,15 +7,18 @@ import 'quill/dist/quill.snow.css';
  * to avoid "require is not defined" errors in Vite production builds.
  */
 export const useQuill = (options = {}) => {
-    const quillRef = useRef(null);
     const [quill, setQuill] = useState(null);
+    const optionsRef = useRef(options);
 
-    useEffect(() => {
-        if (quillRef.current && !quill) {
-            const editorContainer = quillRef.current;
-            const q = new Quill(editorContainer, {
-                theme: options.theme || 'snow',
-                modules: options.modules || {
+    // Keep options in a ref to avoid unnecessary re-initializations
+    // while keeping them available for the callback
+    optionsRef.current = options;
+
+    const quillRef = useCallback((node) => {
+        if (node !== null && !node.classList.contains('ql-container')) {
+            const q = new Quill(node, {
+                theme: optionsRef.current.theme || 'snow',
+                modules: optionsRef.current.modules || {
                     toolbar: [
                         [{ header: [1, 2, 3, false] }],
                         ['bold', 'italic', 'underline', 'strike'],
@@ -23,11 +26,11 @@ export const useQuill = (options = {}) => {
                         ['link', 'clean'],
                     ],
                 },
-                placeholder: options.placeholder || 'Write something...',
+                placeholder: optionsRef.current.placeholder || 'Write something...',
             });
             setQuill(q);
         }
-    }, [quill, options.theme, options.placeholder, JSON.stringify(options.modules)]);
+    }, []);
 
     return { quill, quillRef };
 };
