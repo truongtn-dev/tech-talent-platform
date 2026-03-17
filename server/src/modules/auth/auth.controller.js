@@ -2,7 +2,7 @@ import * as authService from "./auth.service.js";
 import User from "./user.model.js";
 import Job from "../../jobs/job.model.js";
 import Profile from "../../profiles/profile.model.js";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 export const register = async (req, res) => {
   try {
