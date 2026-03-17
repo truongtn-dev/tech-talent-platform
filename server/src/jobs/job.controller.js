@@ -6,8 +6,9 @@ export const createJob = async (req, res) => {
 
     // Handle thumbnail upload
     if (req.file) {
-      const protocol = req.get("x-forwarded-proto") || req.protocol;
-      jobData.thumbnail = `${protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
+      jobData.thumbnail = req.file.path.startsWith("http")
+        ? req.file.path
+        : `${req.get("x-forwarded-proto") || req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
     }
 
     const job = await jobService.createJob(jobData, req.user);
@@ -23,8 +24,9 @@ export const updateJob = async (req, res) => {
 
     // Handle thumbnail upload
     if (req.file) {
-      const protocol = req.get("x-forwarded-proto") || req.protocol;
-      jobData.thumbnail = `${protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
+      jobData.thumbnail = req.file.path.startsWith("http")
+        ? req.file.path
+        : `${req.get("x-forwarded-proto") || req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
     }
 
     const job = await jobService.updateJob(req.params.id, jobData, req.user);

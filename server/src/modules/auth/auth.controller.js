@@ -9,8 +9,9 @@ export const register = async (req, res) => {
     const { email, password, role, firstName, lastName } = req.body;
     let avatar = "";
     if (req.file) {
-      const protocol = req.get("x-forwarded-proto") || req.protocol;
-      avatar = `${protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
+      avatar = req.file.path.startsWith("http")
+        ? req.file.path
+        : `${req.get("x-forwarded-proto") || req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
     }
 
     const user = await authService.register({ email, password, role, avatar, firstName, lastName });
@@ -40,8 +41,9 @@ export const updateAvatar = async (req, res) => {
   try {
     let avatar = "";
     if (req.file) {
-      const protocol = req.get("x-forwarded-proto") || req.protocol;
-      avatar = `${protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
+      avatar = req.file.path.startsWith("http")
+        ? req.file.path
+        : `${req.get("x-forwarded-proto") || req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
     }
     if (!avatar) throw new Error("No file uploaded");
 

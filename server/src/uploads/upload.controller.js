@@ -14,9 +14,9 @@ export const uploadImage = async (req, res) => {
     if (!req.file) throw new Error("No file uploaded");
 
     // Construct full URL for local storage
-    const protocol = req.get("x-forwarded-proto") || req.protocol;
-    const baseUrl = `${protocol}://${req.get("host")}`;
-    const url = `${baseUrl}/${req.file.path.replace(/\\/g, "/")}`;
+    const url = req.file.path.startsWith("http")
+      ? req.file.path
+      : `${req.get("x-forwarded-proto") || req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
 
     res.status(201).json({ url, ...req.file });
   } catch (err) {
