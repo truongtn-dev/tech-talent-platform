@@ -53,8 +53,12 @@ export const createInterviewSession = async (data, interviewerId) => {
     // Update status if formerly something else
     if (application.status !== "INTERVIEW" && application.status !== "INTERVIEW_COMPLETED") {
         application.status = "INTERVIEW";
-        if (!application.timeline) application.timeline = [];
-        application.timeline.push({ status: "INTERVIEW", at: new Date() });
+        application.history.push({ 
+            status: "INTERVIEW", 
+            at: new Date(),
+            updatedBy: interviewerId,
+            note: "Interview session created/updated by interviewer"
+        });
     }
     await application.save();
 
@@ -146,10 +150,10 @@ export const submitEvaluation = async (id, data, userId) => {
         application.score.interview = data.score; // Consolidate score
         application.score.interviewNotes = data.notes;
 
-        if (!application.timeline) application.timeline = [];
-        application.timeline.push({
+        application.history.push({
             status: "INTERVIEW_COMPLETED",
             at: new Date(),
+            updatedBy: userId,
             note: `Interview completed. Score: ${data.score}`
         });
 

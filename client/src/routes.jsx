@@ -41,6 +41,9 @@ const AppRoutes = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/jobs" element={<JobsPage />} />
       <Route path="/jobs/:id" element={<JobDetailPage />} />
+      <Route path="/jobs/manage" element={<ManageJobs />} />
+      <Route path="/jobs/create" element={<JobForm />} />
+      <Route path="/jobs/edit/:id" element={<JobForm />} />
       <Route path="/blog" element={<BlogList />} />
       <Route path="/blog/:slug" element={<BlogDetail />} />
       <Route path="/login" element={<Login />} />

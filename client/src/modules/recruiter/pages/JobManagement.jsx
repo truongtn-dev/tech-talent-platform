@@ -159,10 +159,10 @@ const RecruiterJobManagement = () => {
         setIsModalVisible(true);
     };
 
-    const filteredJobs = jobs.filter(
+    const filteredJobs = (jobs || []).filter(
         (job) =>
-            job.title.toLowerCase().includes(searchText.toLowerCase()) ||
-            job.company.toLowerCase().includes(searchText.toLowerCase())
+            (job?.title?.toLowerCase() || "").includes(searchText.toLowerCase()) ||
+            (job?.company?.toLowerCase() || "").includes(searchText.toLowerCase())
     );
 
     const columns = [
@@ -226,7 +226,7 @@ const RecruiterJobManagement = () => {
         {
             title: "Posted Date",
             dataIndex: "createdAt",
-            render: (date) => dayjs(date).format("MMM DD, YYYY"),
+            render: (date) => date ? dayjs(date).format("MMM DD, YYYY") : "N/A",
         },
         {
             title: "Actions",

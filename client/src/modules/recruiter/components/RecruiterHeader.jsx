@@ -49,7 +49,7 @@ const RecruiterHeader = ({ collapsed, setCollapsed, user }) => {
                                 <Button type="link" size="small" onClick={markAllRead}>Mark all as read</Button>
                             </div>
                             <div className="notification-list">
-                                {notifications.length > 0 ? (
+                                {notifications?.length > 0 ? (
                                     notifications.map(n => (
                                         <div key={n._id} className={`notification-item ${n.isRead ? 'read' : 'unread'}`} style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9' }}>
                                             <div className="notification-content">

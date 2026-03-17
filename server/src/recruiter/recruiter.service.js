@@ -96,6 +96,12 @@ export const updateApplicationStatus = async (id, status, userId) => {
     }
 
     application.status = status;
+    application.history.push({
+        status,
+        at: new Date(),
+        updatedBy: userId,
+        note: `Status updated by recruiter`
+    });
     return application.save();
 };
 
@@ -176,7 +182,12 @@ export const scheduleInterview = async (data, recruiterId) => {
         // Update Application
         app.status = "INTERVIEW_SCHEDULED";
         app.interviewId = interview._id;
-        app.timeline.push({ status: "INTERVIEW_SCHEDULED", at: new Date() });
+        app.history.push({ 
+            status: "INTERVIEW_SCHEDULED", 
+            updatedBy: recruiterId,
+            note: "Interview scheduled",
+            at: new Date() 
+        });
         await app.save({ session });
 
         await session.commitTransaction();

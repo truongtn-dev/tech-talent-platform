@@ -14,7 +14,12 @@ export const createOffer = async (data, user) => {
 
   // Update application status
   application.status = "OFFER";
-  application.timeline.push({ status: "OFFER" });
+  application.history.push({ 
+    status: "OFFER",
+    updatedBy: user.userId,
+    note: `Job offer created for ${data.position}`,
+    at: new Date()
+  });
   await application.save();
 
   // Create offer
@@ -60,7 +65,12 @@ export const respondOffer = async (offerId, status, user) => {
 
   const application = await Application.findById(offer.applicationId);
   application.status = status === "ACCEPTED" ? "HIRED" : "REJECTED";
-  application.timeline.push({ status: application.status });
+  application.history.push({ 
+    status: application.status,
+    updatedBy: user.userId,
+    note: `Candidate ${status.toLowerCase()} the offer`,
+    at: new Date()
+  });
   await application.save();
 
   return offer;
