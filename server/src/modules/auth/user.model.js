@@ -37,6 +37,6 @@ const UserSchema = new mongoose.Schema(
   },
 );
 
-UserSchema.index({ email: 1 });
+// Email is already unique and indexed in the schema definition
 
 export default mongoose.model("User", UserSchema);

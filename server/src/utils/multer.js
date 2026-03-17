@@ -6,10 +6,15 @@ import path from "path";
 import fs from "fs";
 
 // Configure Cloudinary
-console.log("Configuring Cloudinary with:", {
+const mask = (str) => {
+  if (!str) return "MISSING";
+  return str.substring(0, 3) + "..." + str.substring(str.length - 3);
+};
+
+console.log("Cloudinary Config Check:", {
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY ? "PRESENT" : "MISSING",
-  api_secret: process.env.CLOUDINARY_API_SECRET ? "PRESENT" : "MISSING",
+  api_key: mask(process.env.CLOUDINARY_API_KEY),
+  api_secret: mask(process.env.CLOUDINARY_API_SECRET),
 });
 
 cloudinary.config({

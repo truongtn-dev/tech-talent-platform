@@ -9,8 +9,8 @@ console.log(
 
 // Using stable, verified models
 const MODELS = {
-  TEXT_FAST: "gemini-2.5-flash", // Stable, fast model
-  TEXT_SMART: "gemini-2.5-pro", // Stable, more capable model
+  TEXT_FAST: "gemini-1.5-flash", // Stable, fast model
+  TEXT_SMART: "gemini-1.5-pro", // Stable, more capable model
 };
 
 /**

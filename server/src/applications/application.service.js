@@ -177,6 +177,7 @@ export const updateStatus = async (applicationId, status, userId, role, note = "
   // Validate Transition
   validateTransition(app.status, status);
 
+  const oldStatus = app.status;
   app.status = status;
   app.history.push({
     status,
@@ -188,7 +189,7 @@ export const updateStatus = async (applicationId, status, userId, role, note = "
   await app.save();
 
   // Notify Candidate of status change
-  if (status !== app.status) { // if changed
+  if (status !== oldStatus) { // if changed
     const msgMap = {
       "TEST_ASSIGNED": "You have been assigned a coding test.",
       "INTERVIEW_SCHEDULED": "You have been invited to an interview.",

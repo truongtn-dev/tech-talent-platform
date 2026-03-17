@@ -41,7 +41,7 @@ export const getJobs = async (query) => {
   const filter = { status: "PUBLISHED" };
 
   if (query.skill) {
-    filter.skillsRequired = query.skill;
+    filter.skills = query.skill;
   }
 
   if (query.location) {
