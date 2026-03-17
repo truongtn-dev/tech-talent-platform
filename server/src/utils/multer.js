@@ -1,3 +1,4 @@
+import "../config/env.js";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
@@ -5,6 +6,12 @@ import path from "path";
 import fs from "fs";
 
 // Configure Cloudinary
+console.log("Configuring Cloudinary with:", {
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY ? "PRESENT" : "MISSING",
+  api_secret: process.env.CLOUDINARY_API_SECRET ? "PRESENT" : "MISSING",
+});
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
