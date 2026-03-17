@@ -87,14 +87,19 @@ export const getMyApplications = async (userId) => {
 };
 
 export const updateApplicationStatus = async (id, status, userId) => {
-    // Verify application belongs to a job owned by this recruiter
-    const application = await Application.findById(id).populate("jobId");
+    const application = await Application.findById(id).populate("jobId").populate("candidateId");
     if (!application) throw new Error("Application not found");
 
     if (application.jobId.recruiterId.toString() !== userId) {
         throw new Error("Unauthorized");
     }
 
+    // CHECK GUARDRAIL
+    if (!Application.isValidTransition(application.status, status)) {
+        throw new Error(`Invalid status transition: ${application.status} -> ${status}`);
+    }
+
+    const oldStatus = application.status;
     application.status = status;
     application.history.push({
         status,
@@ -102,7 +107,29 @@ export const updateApplicationStatus = async (id, status, userId) => {
         updatedBy: userId,
         note: `Status updated by recruiter`
     });
-    return application.save();
+    
+    await application.save();
+
+    // CENTRALIZED NOTIFICATION DISPATCH
+    const notifData = {
+        userId: application.candidateId._id.toString(),
+        title: "Application Status Update",
+        message: `Your application for ${application.jobId.title} has been moved to ${status}.`,
+        type: "STATUS_CHANGE",
+        link: `/my-applications`
+    };
+
+    // Specific messages for critical statuses
+    if (status === "REJECTED") {
+        notifData.message = `We regret to inform you that your application for ${application.jobId.title} will not be moving forward at this time.`;
+    } else if (status === "SCREENED") {
+        notifData.message = `Great news! Your application for ${application.jobId.title} has been screened and is moving to the next stage.`;
+    }
+
+    await createNotification(notifData);
+    emitToUser(application.candidateId._id.toString(), "NEW_NOTIFICATION", notifData);
+
+    return application;
 };
 
 export const getDashboardStats = async (recruiterId) => {
@@ -180,6 +207,9 @@ export const scheduleInterview = async (data, recruiterId) => {
         await interview.save({ session });
 
         // Update Application
+        if (!Application.isValidTransition(app.status, "INTERVIEW_SCHEDULED")) {
+            throw new Error(`Invalid status transition: ${app.status} -> INTERVIEW_SCHEDULED`);
+        }
         app.status = "INTERVIEW_SCHEDULED";
         app.interviewId = interview._id;
         app.history.push({ 

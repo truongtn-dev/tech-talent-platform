@@ -1,5 +1,19 @@
 import mongoose from "mongoose";
 
+export const VALID_TRANSITIONS = {
+  APPLIED: ["SCREENED", "REJECTED", "WITHDRAWN"],
+  SCREENED: ["TEST_ASSIGNED", "INTERVIEW_SCHEDULED", "REJECTED", "WITHDRAWN"],
+  TEST_ASSIGNED: ["TEST_SUBMITTED", "REJECTED", "WITHDRAWN"],
+  TEST_SUBMITTED: ["INTERVIEW_SCHEDULED", "SCREENED", "REJECTED", "WITHDRAWN"],
+  INTERVIEW_SCHEDULED: ["INTERVIEW_COMPLETED", "REJECTED", "WITHDRAWN"],
+  INTERVIEW_COMPLETED: ["OFFER", "INTERVIEW_SCHEDULED", "REJECTED", "WITHDRAWN"],
+  OFFER: ["OFFER_ACCEPTED", "OFFER_DECLINED", "REJECTED", "WITHDRAWN"],
+  REJECTED: ["SCREENED"], // Allow manual "re-consideration" back to screened? Or keep locked.
+  WITHDRAWN: [],
+  OFFER_ACCEPTED: [],
+  OFFER_DECLINED: []
+};
+
 const ApplicationSchema = new mongoose.Schema(
   {
     jobId: {
@@ -77,6 +91,12 @@ const ApplicationSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+ApplicationSchema.statics.isValidTransition = function(currentStatus, nextStatus) {
+  if (currentStatus === nextStatus) return true;
+  const allowed = VALID_TRANSITIONS[currentStatus] || [];
+  return allowed.includes(nextStatus);
+};
 
 ApplicationSchema.index({ jobId: 1, candidateId: 1 }, { unique: true });
 

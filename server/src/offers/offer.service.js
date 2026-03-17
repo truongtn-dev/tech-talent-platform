@@ -13,6 +13,9 @@ export const createOffer = async (data, user) => {
   }
 
   // Update application status
+  if (!Application.isValidTransition(application.status, "OFFER")) {
+    throw new Error(`Invalid status transition: ${application.status} -> OFFER`);
+  }
   application.status = "OFFER";
   application.history.push({ 
     status: "OFFER",
@@ -64,7 +67,13 @@ export const respondOffer = async (offerId, status, user) => {
   await offer.save();
 
   const application = await Application.findById(offer.applicationId);
-  application.status = status === "ACCEPTED" ? "HIRED" : "REJECTED";
+  const nextStatus = status === "ACCEPTED" ? "OFFER_ACCEPTED" : "OFFER_DECLINED";
+
+  if (!Application.isValidTransition(application.status, nextStatus)) {
+    throw new Error(`Invalid status transition: ${application.status} -> ${nextStatus}`);
+  }
+
+  application.status = nextStatus;
   application.history.push({ 
     status: application.status,
     updatedBy: user.userId,

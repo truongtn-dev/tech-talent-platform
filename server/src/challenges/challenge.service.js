@@ -234,6 +234,12 @@ export const submitChallenge = async (submissionData, user) => {
     // 5. Update Application Status
     const app = await Application.findById(assignment.applicationId._id).populate("jobId");
     if (app) {
+        if (!Application.isValidTransition(app.status, "TEST_SUBMITTED")) {
+            console.warn(`Warning: Potential illogical transition ${app.status} -> TEST_SUBMITTED for application ${app._id}`);
+            // In case of async race, we still proceed but log it. 
+            // Or we can throw. Let's be strict.
+            throw new Error(`Invalid status transition: ${app.status} -> TEST_SUBMITTED`);
+        }
         app.status = "TEST_SUBMITTED";
         app.score.codingTest = results.score; // Consolidate score
         app.history.push({

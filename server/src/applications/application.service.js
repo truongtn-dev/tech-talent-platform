@@ -12,30 +12,7 @@ import { createNotification } from "../notifications/notification.service.js";
 import mongoose from "mongoose";
 import TestAssignment from "../challenges/testAssignment.model.js";
 
-// --- STATE MACHINE CONFIGURATION ---
-const ALLOWED_TRANSITIONS = {
-  APPLIED: ["SCREENED", "REJECTED", "WITHDRAWN"],
-  SCREENED: ["TEST_ASSIGNED", "REJECTED", "WITHDRAWN"],
-  TEST_ASSIGNED: ["TEST_SUBMITTED", "WITHDRAWN", "REJECTED"], // Rejected if they don't take it?
-  TEST_SUBMITTED: ["INTERVIEW_SCHEDULED", "REJECTED", "WITHDRAWN"],
-  INTERVIEW_SCHEDULED: ["INTERVIEW_COMPLETED", "WITHDRAWN", "REJECTED"], // Cancelled?
-  INTERVIEW_COMPLETED: ["OFFER", "REJECTED", "WITHDRAWN"],
-  OFFER: ["OFFER_ACCEPTED", "OFFER_DECLINED", "WITHDRAWN"],
-  REJECTED: [], // Terminal
-  WITHDRAWN: [], // Terminal
-  OFFER_ACCEPTED: [], // Terminal
-  OFFER_DECLINED: [], // Terminal
-};
-
-// Validates State Transition
-const validateTransition = (current, next) => {
-  if (current === next) return true; // Update data without changing status
-  const allowed = ALLOWED_TRANSITIONS[current] || [];
-  if (!allowed.includes(next)) {
-    throw new Error(`Invalid status transition from ${current} to ${next}`);
-  }
-  return true;
-};
+// Transition validation is now handled by Application.isValidTransition static method.
 
 export const applyJob = async (data, user) => {
   if (user.role !== "CANDIDATE") {
@@ -184,7 +161,9 @@ export const updateStatus = async (applicationId, status, userId, role, note = "
   }
 
   // Validate Transition
-  validateTransition(app.status, status);
+  if (!Application.isValidTransition(app.status, status)) {
+    throw new Error(`Invalid status transition: ${app.status} -> ${status}`);
+  }
 
   const oldStatus = app.status;
   app.status = status;
@@ -232,7 +211,9 @@ export const assignTest = async (applicationId, challengeId, recruiterId) => {
   if (!challenge) throw new Error("Challenge not found");
 
   // Update App State
-  validateTransition(app.status, "TEST_ASSIGNED");
+  if (!Application.isValidTransition(app.status, "TEST_ASSIGNED")) {
+    throw new Error(`Invalid status transition: ${app.status} -> TEST_ASSIGNED`);
+  }
 
   // Check for existing assignment
   let assignment = await TestAssignment.findOne({
@@ -242,11 +223,15 @@ export const assignTest = async (applicationId, challengeId, recruiterId) => {
 
   if (!assignment) {
     // Create Test Assignment if not exists
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 3); // 3 days from now
+
     assignment = await TestAssignment.create({
       applicationId: app._id,
       candidateId: app.candidateId,
       challengeId: challenge._id,
       status: "PENDING",
+      expiresAt,
     });
   } else {
     // If exists, ideally we just ensure it is active or reset it?

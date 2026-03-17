@@ -51,10 +51,13 @@ export const createInterviewSession = async (data, interviewerId) => {
     }
 
     // Update status if formerly something else
-    if (application.status !== "INTERVIEW" && application.status !== "INTERVIEW_COMPLETED") {
-        application.status = "INTERVIEW";
+    if (application.status !== "INTERVIEW_SCHEDULED" && application.status !== "INTERVIEW_COMPLETED") {
+        if (!Application.isValidTransition(application.status, "INTERVIEW_SCHEDULED")) {
+            throw new Error(`Invalid status transition: ${application.status} -> INTERVIEW_SCHEDULED`);
+        }
+        application.status = "INTERVIEW_SCHEDULED";
         application.history.push({ 
-            status: "INTERVIEW", 
+            status: "INTERVIEW_SCHEDULED", 
             at: new Date(),
             updatedBy: interviewerId,
             note: "Interview session created/updated by interviewer"
@@ -145,6 +148,9 @@ export const submitEvaluation = async (id, data, userId) => {
     // 3. Update Application
     const application = await Application.findById(interview.applicationId._id).populate("jobId");
     if (application) {
+        if (!Application.isValidTransition(application.status, "INTERVIEW_COMPLETED")) {
+            throw new Error(`Invalid status transition: ${application.status} -> INTERVIEW_COMPLETED`);
+        }
         application.status = "INTERVIEW_COMPLETED";
         if (!application.score) application.score = {};
         application.score.interview = data.score; // Consolidate score

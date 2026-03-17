@@ -1,7 +1,7 @@
-const baseUrl = 'http://127.0.0.1:5000/api';
+const baseUrl = 'https://tech-talent-platform.onrender.com/api';
 const candidateCreds = { email: 'candidate@tech.com', password: 'Techtalent123@' };
 const recruiterCreds = { email: 'recruiter@tech.com', password: 'Techtalent123@' };
-const interviewerEmail = 'interviewer_e2e@tech.com';
+const interviewerEmail = 'interviewer_live_e2e@tech.com';
 const interviewerPass = 'Techtalent123@';
 
 async function safeFetch(url, options = {}) {
@@ -24,7 +24,7 @@ async function safeFetch(url, options = {}) {
 
 async function run() {
   try {
-    console.log('--- STARTING COMPREHENSIVE E2E FLOW ---');
+    console.log('--- STARTING COMPREHENSIVE PRODUCTION E2E FLOW ---');
 
     console.log('[Candidate] Logging in...');
     const { token: candidateToken } = await safeFetch(`${baseUrl}/auth/login`, {
@@ -33,7 +33,8 @@ async function run() {
     });
 
     const jobs = await safeFetch(`${baseUrl}/jobs`);
-    const job = jobs.find(j => j.title.includes('Junior MERN'));
+    const job = jobs.find(j => j.title.includes('Junior MERN') || j.title.includes('MERN Stack'));
+    console.log('[Info] Using job:', job.title);
     
     let application = await safeFetch(`${baseUrl}/applications/check/${job._id}`, {
       headers: { 'Authorization': `Bearer ${candidateToken}` }
@@ -72,7 +73,7 @@ async function run() {
       const challenges = await safeFetch(`${baseUrl}/challenges`, {
         headers: { 'Authorization': `Bearer ${recruiterToken}` }
       });
-      const challenge = challenges.find(c => c.title.includes('MERN'));
+      const challenge = challenges[0];
       const res = await safeFetch(`${baseUrl}/applications/${appId}/assign-test`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${recruiterToken}` },
@@ -84,8 +85,6 @@ async function run() {
 
     if (status === 'TEST_ASSIGNED') {
       console.log('[Candidate] Submitting Test...');
-      // We need testAssignmentId which is in the application object
-      // If we don't have it, we might need to fetch the full application
       if (!application.testAssignmentId) {
           const appFull = await safeFetch(`${baseUrl}/applications/me`, {
               headers: { 'Authorization': `Bearer ${candidateToken}` }
@@ -99,7 +98,7 @@ async function run() {
         headers: { 'Authorization': `Bearer ${candidateToken}` },
         body: JSON.stringify({
           assignmentId: application.testAssignmentId,
-          code: 'function solve() { return 42; }',
+          code: 'function solve() { return "Live Success"; }',
           language: 'javascript'
         })
       });
@@ -115,19 +114,30 @@ async function run() {
       let interviewerId;
       let interviewerToken;
       if (interviewers.length === 0) {
+        console.log('[Recruiter] No interviewers, creating one...');
         const regRes = await safeFetch(`${baseUrl}/auth/register`, {
           method: 'POST',
-          body: JSON.stringify({ email: interviewerEmail, password: interviewerPass, role: 'INTERVIEWER', firstName: 'E2E', lastName: 'Int' })
+          body: JSON.stringify({ email: interviewerEmail, password: interviewerPass, role: 'INTERVIEWER', firstName: 'E2E', lastName: 'Live' })
         });
         interviewerId = regRes.user.id;
         interviewerToken = regRes.token;
       } else {
         interviewerId = interviewers[0]._id;
-        const loginRes = await safeFetch(`${baseUrl}/auth/login`, {
-          method: 'POST',
-          body: JSON.stringify({ email: interviewerEmail, password: interviewerPass })
-        });
-        interviewerToken = loginRes.token;
+        try {
+          const loginRes = await safeFetch(`${baseUrl}/auth/login`, {
+            method: 'POST',
+            body: JSON.stringify({ email: interviewerEmail, password: interviewerPass })
+          });
+          interviewerToken = loginRes.token;
+        } catch (e) {
+          // If login fails, create it
+          const regRes = await safeFetch(`${baseUrl}/auth/register`, {
+            method: 'POST',
+            body: JSON.stringify({ email: interviewerEmail, password: interviewerPass, role: 'INTERVIEWER', firstName: 'E2E', lastName: 'Live' })
+          });
+          interviewerId = regRes.user.id;
+          interviewerToken = regRes.token;
+        }
       }
 
       const interview = await safeFetch(`${baseUrl}/recruiter/interviews`, {
@@ -137,8 +147,8 @@ async function run() {
           applicationId: appId,
           interviewerId: interviewerId,
           scheduledAt: new Date(Date.now() + 86400000).toISOString(),
-          location: 'Zoom',
-          notes: 'Final Round'
+          location: 'Live Zoom',
+          notes: 'Production Verification Round'
         })
       });
 
@@ -146,7 +156,7 @@ async function run() {
       await safeFetch(`${baseUrl}/interviewer/sessions/${interview._id}/evaluate`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${interviewerToken}` },
-        body: JSON.stringify({ score: 10, notes: 'Perfect score. Recommendation: HIRE' })
+        body: JSON.stringify({ rating: 10, feedback: 'Verified on production.', recommendation: 'HIRE' })
       });
       status = 'INTERVIEW_COMPLETED';
     }
@@ -156,16 +166,16 @@ async function run() {
        const finalApp = await safeFetch(`${baseUrl}/applications/${appId}/status`, {
           method: 'PUT',
           headers: { 'Authorization': `Bearer ${recruiterToken}` },
-          body: JSON.stringify({ status: 'OFFER', note: 'Welcome!' })
+          body: JSON.stringify({ status: 'OFFER', note: 'Production verification complete!' })
        });
        status = finalApp.status;
     }
 
-    console.log('--- COMPREHENSIVE E2E FLOW COMPLETED ---');
+    console.log('--- PRODUCTION COMPREHENSIVE E2E FLOW COMPLETED ---');
     console.log('Final Application Status:', status);
 
   } catch (err) {
-    console.error('--- MASTER E2E FLOW FAILED ---');
+    console.error('--- PRODUCTION MASTER E2E FLOW FAILED ---');
     console.error(err.message);
     process.exit(1);
   }
