@@ -75,7 +75,10 @@ export const seedData = async (req, res) => {
     const hashedPassword = await bcrypt.hash("Techtalent123@", 10);
 
     // ===== CLEAN & CREATE =====
-    await User.deleteMany({ email: { $in: ["admin@tech.com", "recruiter@tech.com", "candidate@tech.com"] } });
+    console.log("Wiping entire database for fresh start...");
+    await User.deleteMany({}); // Delete ALL users
+    await Job.deleteMany({}); // Delete ALL jobs
+    await Profile.deleteMany({}); // Delete ALL profiles
     
     const admin = await User.create({
       email: "admin@tech.com",
@@ -114,7 +117,7 @@ export const seedData = async (req, res) => {
     });
 
     res.json({ 
-      message: "Database Seeded Successfully! (Version 1.1)", 
+      message: "Database Cleared and Seeded Successfully! (Version 1.2)", 
       accounts: {
         admin: "admin@tech.com / Techtalent123@",
         recruiter: "recruiter@tech.com / Techtalent123@",
