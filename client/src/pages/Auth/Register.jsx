@@ -121,6 +121,7 @@ const Register = () => {
                             <Radio.Group className="role-selector-group">
                                 <Radio.Button value="CANDIDATE">Candidate</Radio.Button>
                                 <Radio.Button value="RECRUITER">Recruiter</Radio.Button>
+                                <Radio.Button value="INTERVIEWER">Interviewer</Radio.Button>
                             </Radio.Group>
                         </Form.Item>
 
