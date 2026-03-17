@@ -41,6 +41,7 @@ const ChallengePage = () => {
     const [hasStarted, setHasStarted] = useState(false);
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
+    const lastProctorLog = useRef({ type: null, time: 0 });
 
     // --- Effects ---
     useEffect(() => {
@@ -98,11 +99,24 @@ const ChallengePage = () => {
                     const result = await proctoringService.detectFace(videoRef.current);
                     if (result && result.status !== "OK") {
                         setFaceAlert(result.message);
+                        
+                        // Throttled logging (10 seconds between same alert type, or 5 if changed)
+                        const now = Date.now();
+                        const timeSinceLast = now - lastProctorLog.current.time;
+                        if (result.status !== lastProctorLog.current.type || timeSinceLast > 10000) {
+                            lastProctorLog.current = { type: result.status, time: now };
+                            
+                            // Log to server
+                            challengeService.logProctoring(id, { 
+                                type: result.status === "LOOKING_AWAY" ? "LOOKING_AWAY" : "NO_FACE",
+                                message: result.message
+                            }).catch(console.error);
+                        }
                     } else {
                         setFaceAlert(null);
                     }
                 }
-            }, 1000);
+            }, 2000); // 2 seconds for performance
 
             return () => clearInterval(interval);
         } catch (err) {

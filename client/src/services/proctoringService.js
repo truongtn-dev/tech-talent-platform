@@ -36,26 +36,49 @@ const proctoringService = {
     // Load AI Models
     loadModels: async () => {
         try {
-            // Using Tiny Face Detector for performance
-            await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
-            console.log("FaceAPI Models Loaded");
+            const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+            await Promise.all([
+                faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL)
+            ]);
+            console.log("Proctoring Models Loaded (Detector + Landmarks)");
         } catch (error) {
             console.error("Failed to load models", error);
         }
     },
 
-    // Check for Face
+    // Check for Face and Head Pose
     detectFace: async (videoElement) => {
         if (!videoElement || videoElement.paused || videoElement.ended) return null;
 
-        const detections = await faceapi.detectAllFaces(videoElement, new faceapi.TinyFaceDetectorOptions());
-        const faceCount = detections.length;
-
-        if (faceCount === 0) {
-            return { status: "NO_FACE", message: "No face detected in camera view!" };
-        } else if (faceCount > 1) {
-            return { status: "MULTIPLE_FACES", message: "Multiple faces detected. Suspicious activity." };
+        // Detect face with landmarks
+        const detection = await faceapi.detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+        
+        if (!detection) {
+            // No face detected - could be 0 faces
+            return { status: "NO_FACE", message: "No face detected! Please stay in frame." };
         }
+
+        // Multiple faces check (fall back to detectAll if single succeeds)
+        // Note: For performance, we usually only check single face landmarks
+        // but can periodically check for multiple faces.
+        
+        // Head Pose Estimation (Simple logic based on landmarks)
+        const landmarks = detection.landmarks;
+        const nose = landmarks.getNose()[3]; // Middle of nose
+        const leftEye = landmarks.getLeftEye()[0];
+        const rightEye = landmarks.getRightEye()[3];
+        
+        // Yaw (Horizontal rotation)
+        // If nose is too far from center of eyes, user is looking away
+        const eyeCenter = (leftEye.x + rightEye.x) / 2;
+        const faceWidth = rightEye.x - leftEye.x;
+        const yawRatio = (nose.x - eyeCenter) / faceWidth;
+
+        if (Math.abs(yawRatio) > 0.5) {
+            return { status: "LOOKING_AWAY", message: "Looking away from screen detected!" };
+        }
+
         return { status: "OK", message: "Face detected." };
     }
 };

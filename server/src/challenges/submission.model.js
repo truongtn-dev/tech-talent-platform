@@ -35,7 +35,7 @@ const SubmissionSchema = new mongoose.Schema(
             {
                 type: {
                     type: String,
-                    enum: ["TAB_SWITCH", "MULTIPLE_PEOPLE", "NO_PERSON", "USER_LEFT"],
+                    enum: ["TAB_SWITCH", "MULTIPLE_PEOPLE", "NO_PERSON", "USER_LEFT", "LOOKING_AWAY", "NO_FACE", "TEST_STARTED"],
                 },
                 timestamp: { type: Date, default: Date.now },
                 snapshotUrl: { type: String }, // Optional image from camera
