@@ -25,19 +25,19 @@ const seed = async () => {
     // ===== USERS =====
     const admin = await User.create({
       email: "admin@tech.com",
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       role: "ADMIN",
     });
 
     const recruiter = await User.create({
       email: "recruiter@tech.com",
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       role: "RECRUITER",
     });
 
     const candidate = await User.create({
       email: "candidate@tech.com",
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       role: "CANDIDATE",
     });
 
@@ -53,12 +53,14 @@ const seed = async () => {
     const job = await Job.create({
       recruiterId: recruiter._id,
       title: "Junior MERN Stack Developer",
+      company: "Debug Corp",
       description:
         "Looking for a junior MERN developer with basic backend and frontend skills.",
-      skillsRequired: ["JavaScript", "Node.js", "MongoDB"],
+      skills: ["JavaScript", "Node.js", "MongoDB"],
       level: "JUNIOR",
       location: "Ho Chi Minh City",
       status: "PUBLISHED",
+      slug: "junior-mern-stack-developer-" + Date.now(),
     });
 
     console.log("Seed completed successfully");

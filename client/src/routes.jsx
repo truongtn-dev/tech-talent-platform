@@ -146,6 +146,14 @@ const AppRoutes = () => {
           </InterviewerRoute>
         }
       />
+      <Route
+        path="/admin/challenges"
+        element={
+          <AdminRoute>
+            <ChallengeManagement />
+          </AdminRoute>
+        }
+      />
     </Routes>
   );
 };

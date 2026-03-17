@@ -1,11 +1,15 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-console.log(
-  "[AI] Gemini Service Initialized. Key present:",
-  !!process.env.GEMINI_API_KEY,
-);
+let genAI;
+const getGenAI = () => {
+  if (!genAI) {
+    if (!process.env.GEMINI_API_KEY) {
+      console.warn("[AI] GEMINI_API_KEY is missing in process.env");
+    }
+    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+  }
+  return genAI;
+};
 
 // Using stable, verified models
 const MODELS = {
@@ -54,7 +58,7 @@ Return ONLY valid JSON in this exact format:
 `;
 
   try {
-    const model = genAI.getGenerativeModel({
+    const model = getGenAI().getGenerativeModel({
       model: MODELS.TEXT_SMART,
       generationConfig: {
         responseMimeType: "application/json",
@@ -144,7 +148,7 @@ Return ONLY the improved bullet points, one per line, starting with "•".
   }
 
   try {
-    const model = genAI.getGenerativeModel({
+    const model = getGenAI().getGenerativeModel({
       model: MODELS.TEXT_FAST,
       generationConfig: {
         temperature: 0.7, // More creative for writing

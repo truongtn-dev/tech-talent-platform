@@ -44,13 +44,18 @@ export const applyJob = async (data, user) => {
 
   const { jobId, cvType, cvId, uploadId } = data;
 
-  const job = await Job.findById(jobId);
+  const isId = mongoose.Types.ObjectId.isValid(jobId);
+  const job = isId 
+    ? await Job.findById(jobId) 
+    : await Job.findOne({ slug: jobId });
+
   if (!job || job.status !== "PUBLISHED") {
-    throw new Error("Job not available");
+    throw new Error("Job not available or invalid ID/Slug");
   }
+  const actualJobId = job._id;
 
   // Check existing application
-  const existingApp = await Application.findOne({ jobId, candidateId: user.userId });
+  const existingApp = await Application.findOne({ jobId: actualJobId, candidateId: user.userId });
   if (existingApp) {
     throw new Error("You have already applied to this job");
   }
@@ -109,7 +114,7 @@ export const applyJob = async (data, user) => {
   }
 
   const application = await Application.create({
-    jobId,
+    jobId: actualJobId,
     candidateId: user.userId,
     cvType,
     cvRef,
@@ -143,7 +148,11 @@ export const getApplicationsByCandidate = async (userId) => {
 };
 
 export const getApplicationsByJob = async (jobId, userId, role) => {
-  const job = await Job.findById(jobId);
+  const isId = mongoose.Types.ObjectId.isValid(jobId);
+  const job = isId 
+    ? await Job.findById(jobId) 
+    : await Job.findOne({ slug: jobId });
+
   if (!job) throw new Error("Job not found");
   if (role !== "ADMIN" && job.recruiterId.toString() !== userId) throw new Error("Unauthorized");
 
@@ -274,8 +283,19 @@ export const assignTest = async (applicationId, challengeId, recruiterId) => {
   return app;
 };
 
-export const checkUserApplication = async (jobId, userId) => {
-  const application = await Application.findOne({ jobId, candidateId: userId }).populate("jobId");
+export const checkUserApplication = async (jobIdParam, userId) => {
+  const isId = mongoose.Types.ObjectId.isValid(jobIdParam);
+  let query = { candidateId: userId };
+  
+  if (isId) {
+    query.jobId = jobIdParam;
+  } else {
+    const job = await Job.findOne({ slug: jobIdParam });
+    if (!job) return { applied: false };
+    query.jobId = job._id;
+  }
+
+  const application = await Application.findOne(query).populate("jobId");
   if (application) {
     return {
       applied: true,

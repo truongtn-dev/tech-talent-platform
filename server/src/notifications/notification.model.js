@@ -12,7 +12,7 @@ const NotificationSchema = new mongoose.Schema(
     message: { type: String, required: true },
     type: {
       type: String,
-      enum: ["NEW_APPLICATION", "TEST_SUBMITTED", "INTERVIEW_SCHEDULED", "INTERVIEW_EVALUATED", "GENERAL"],
+      enum: ["NEW_APPLICATION", "TEST_ASSIGNED", "TEST_SUBMITTED", "TEST_RESULT", "INTERVIEW_SCHEDULED", "INTERVIEW_ASSIGNED", "INTERVIEW_COMPLETED", "INTERVIEW_EVALUATED", "OFFER", "STATUS_CHANGE", "GENERAL"],
       default: "GENERAL"
     },
     link: { type: String }, // Optional link to redirect user

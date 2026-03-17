@@ -119,7 +119,7 @@ export const getDashboardStats = async (recruiterId) => {
 
     const interviews = await Application.countDocuments({
         jobId: { $in: jobIds },
-        status: "INTERVIEW"
+        status: "INTERVIEW_SCHEDULED"
     });
 
     const hired = await Application.countDocuments({
