@@ -110,7 +110,7 @@ export const seedData = async (req, res) => {
     });
 
     res.json({ 
-      message: "Database Seeded Successfully!", 
+      message: "Database Seeded Successfully! (Version 1.1)", 
       accounts: {
         admin: "admin@tech.com / Techtalent123@",
         recruiter: "recruiter@tech.com / Techtalent123@",
