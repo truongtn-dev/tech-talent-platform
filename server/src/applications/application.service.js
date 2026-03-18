@@ -11,6 +11,8 @@ import { emitToUser } from "../utils/socket.js";
 import { createNotification } from "../notifications/notification.service.js";
 import mongoose from "mongoose";
 import TestAssignment from "../challenges/testAssignment.model.js";
+import User from "../modules/auth/user.model.js";
+import { sendEmail, getApplicationTemplate, getTestTemplate } from "../utils/email.js";
 
 // Transition validation is now handled by Application.isValidTransition static method.
 
@@ -115,6 +117,17 @@ export const applyJob = async (data, user) => {
   await createNotification(notifData);
   emitToUser(job.recruiterId.toString(), "NEW_NOTIFICATION", notifData);
 
+  // Send Email to Candidate
+  try {
+    const template = getApplicationTemplate(user.fullName || "Candidate", job.title, matchingScore);
+    await sendEmail({
+      to: user.email,
+      ...template
+    });
+  } catch (emailErr) {
+    console.error("Failed to send application email:", emailErr);
+  }
+
   return application;
 };
 
@@ -139,7 +152,7 @@ export const getApplicationsByJob = async (jobId, userId, role) => {
 };
 
 export const updateStatus = async (applicationId, status, userId, role, note = "") => {
-  const app = await Application.findById(applicationId).populate("jobId");
+  const app = await Application.findById(applicationId).populate("jobId").populate("candidateId");
   if (!app) throw new Error("Application not found");
 
   const job = app.jobId;
@@ -194,6 +207,20 @@ export const updateStatus = async (applicationId, status, userId, role, note = "
       };
       await createNotification(notif);
       emitToUser(app.candidateId.toString(), "NEW_NOTIFICATION", notif);
+
+      // Send Email update
+      try {
+        const candidateEmail = app.candidateId.email;
+        if (candidateEmail) {
+          await sendEmail({
+            to: candidateEmail,
+            subject: `Application Update: ${app.jobId.title}`,
+            text: `Hi,\n\nThere is an update on your application for ${app.jobId.title}.\nStatus: ${status}\nNote: ${msgMap[status]}\n\nPlease check your dashboard for details.\n\nBest regards,\nTech Talent Team`
+          });
+        }
+      } catch (emailErr) {
+        console.error("Failed to send status update email:", emailErr);
+      }
     }
   }
 
@@ -203,7 +230,7 @@ export const updateStatus = async (applicationId, status, userId, role, note = "
 // --- NEW ACTIONS ---
 
 export const assignTest = async (applicationId, challengeId, recruiterId) => {
-  const app = await Application.findById(applicationId);
+  const app = await Application.findById(applicationId).populate("candidateId").populate("jobId");
   if (!app) throw new Error("Application not found");
 
   // Verify challenge exists
@@ -264,6 +291,20 @@ export const assignTest = async (applicationId, challengeId, recruiterId) => {
   };
   await createNotification(notif);
   emitToUser(app.candidateId.toString(), "NEW_NOTIFICATION", notif);
+
+  // Send Email for Test
+  try {
+    const candidateEmail = app.candidateId.email || (await User.findById(app.candidateId)).email;
+    const testLink = `${process.env.CLIENT_URL || "http://localhost:5173"}/candidate/test/${assignment._id}`;
+    const template = getTestTemplate(app.candidateId.fullName || "Candidate", challenge.title, assignment.expiresAt, testLink);
+    
+    await sendEmail({
+      to: candidateEmail,
+      ...template
+    });
+  } catch (emailErr) {
+    console.error("Failed to send test assignment email:", emailErr);
+  }
 
   return app;
 };

@@ -5,6 +5,7 @@ import Interview from "../interviews/interview.model.js";
 import mongoose from "mongoose";
 import { createNotification } from "../notifications/notification.service.js";
 import { emitToUser } from "../utils/socket.js";
+import { sendEmail, getInterviewTemplate } from "../utils/email.js";
 
 export const getMyJobs = async (userId) => {
     return Job.aggregate([
@@ -129,6 +130,17 @@ export const updateApplicationStatus = async (id, status, userId) => {
     await createNotification(notifData);
     emitToUser(application.candidateId._id.toString(), "NEW_NOTIFICATION", notifData);
 
+    // Send Email for status change
+    try {
+        await sendEmail({
+            to: application.candidateId.email,
+            subject: `Application Status Changed: ${application.jobId.title}`,
+            text: `Hi ${application.candidateId.fullName || "Candidate"},\n\nYour application for ${application.jobId.title} at ${application.jobId.company} has been updated.\n\nNew Status: ${status}\n\nMessage: ${notifData.message}\n\nPlease visit your dashboard for more details: ${process.env.CLIENT_URL || "http://localhost:5173"}/my-applications\n\nBest regards,\nTech Talent Team`
+        });
+    } catch (emailErr) {
+        console.error("Failed to send status update email:", emailErr);
+    }
+
     return application;
 };
 
@@ -226,6 +238,42 @@ export const scheduleInterview = async (data, recruiterId) => {
         await app.save({ session });
 
         await session.commitTransaction();
+
+        // Send Email to Candidate and Interviewer (Async)
+        try {
+            const candidate = await User.findById(interview.candidateId);
+            const interviewer = await User.findById(interview.interviewerId);
+
+            const interviewTemplate = getInterviewTemplate(candidate.fullName || "Candidate", app.jobId.title, scheduledAt, meetingLink);
+
+            // Notify Candidate
+            await sendEmail({
+                to: candidate.email,
+                ...interviewTemplate
+            });
+
+            // Notify Interviewer (Using same template but adding candidate info in text fallback if needed, but HTML is fine)
+            await sendEmail({
+                to: interviewer.email,
+                subject: `[TechTalent] New Interview Assignment: ${app.jobId.title}`,
+                html: `
+                    <div style="font-family: sans-serif; padding: 20px; border: 1px solid #1677ff; border-radius: 10px;">
+                        <h2 style="color: #1677ff;">New Interview Assignment</h2>
+                        <p>Hi,</p>
+                        <p>You have been assigned to interview a candidate for the <b>${app.jobId.title}</b> role.</p>
+                        <ul>
+                            <li><b>Candidate:</b> ${candidate.fullName || candidate.email}</li>
+                            <li><b>Date:</b> ${new Date(scheduledAt).toLocaleString()}</li>
+                            <li><b>Meeting Link:</b> <a href="${meetingLink}">${meetingLink}</a></li>
+                        </ul>
+                        <p>Candidate Profile: <a href="${process.env.CLIENT_URL || "http://localhost:5173"}/interviewer/applications/${app._id}">View Profile</a></p>
+                    </div>
+                `
+            });
+        } catch (emailErr) {
+            console.error("Failed to send interview emails:", emailErr);
+        }
+
         return interview;
     } catch (error) {
         await session.abortTransaction();
