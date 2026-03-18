@@ -439,6 +439,60 @@ const ChallengePage = () => {
                     />
                 </div>
             </div>
+
+            {/* Proctoring Blocking Overlay */}
+            {hasStarted && faceAlert && (faceAlert.includes("No face") || faceAlert.includes("Multiple faces")) && (
+                <div style={{ 
+                    position: "fixed", 
+                    inset: 0, 
+                    background: "rgba(0,0,0,0.85)", 
+                    backdropFilter: "blur(8px)",
+                    display: "flex", 
+                    flexDirection: "column",
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    zIndex: 20000,
+                    color: "#fff",
+                    textAlign: "center",
+                    padding: 24
+                }}>
+                    <div style={{ 
+                        width: 80, 
+                        height: 80, 
+                        background: "rgba(237, 27, 47, 0.2)", 
+                        borderRadius: "50%", 
+                        display: "flex", 
+                        alignItems: "center", 
+                        justifyContent: "center", 
+                        marginBottom: 24,
+                        border: "2px solid #ED1B2F",
+                        animation: "pulse 2s infinite"
+                    }}>
+                        <WarningOutlined style={{ fontSize: 40, color: "#ED1B2F" }} />
+                    </div>
+                    <Title level={2} style={{ color: "#fff", marginBottom: 16 }}>Test Paused: Integrity Violation</Title>
+                    <Text style={{ color: "#ccc", fontSize: 18, maxWidth: 500, display: "block", marginBottom: 32 }}>
+                        {faceAlert}
+                    </Text>
+                    <div style={{ width: 320, height: 240, background: "#000", borderRadius: 12, overflow: "hidden", border: "2px solid #ED1B2F", marginBottom: 32 }}>
+                        <video
+                            ref={(el) => { if (el && stream) el.srcObject = stream; videoRef.current = el; }}
+                            autoPlay
+                            playsInline
+                            muted
+                            style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scaleX(-1)" }}
+                        />
+                    </div>
+                    <Text style={{ color: "#888" }}>Adjust your position or environment to continue the assessment.</Text>
+                    <style>{`
+                        @keyframes pulse {
+                            0% { transform: scale(1); opacity: 1; }
+                            50% { transform: scale(1.1); opacity: 0.7; }
+                            100% { transform: scale(1); opacity: 1; }
+                        }
+                    `}</style>
+                </div>
+            )}
         </div>
     );
 };

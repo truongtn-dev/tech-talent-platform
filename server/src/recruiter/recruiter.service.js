@@ -195,6 +195,11 @@ export const scheduleInterview = async (data, recruiterId) => {
             throw new Error("Unauthorized access to application");
         }
 
+        // Business Logic Guard: Block interview if test score is 0
+        if (app.score && app.score.codingTest === 0) {
+            throw new Error("Cannot schedule interview: Candidate failed the technical test with a score of 0.");
+        }
+
         // Create Interview
         const interview = new Interview({
             applicationId,

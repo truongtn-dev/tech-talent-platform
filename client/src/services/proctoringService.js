@@ -51,18 +51,19 @@ const proctoringService = {
     detectFace: async (videoElement) => {
         if (!videoElement || videoElement.paused || videoElement.ended) return null;
 
-        // Detect face with landmarks
-        const detection = await faceapi.detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+        // Detect all faces
+        const detections = await faceapi.detectAllFaces(videoElement, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
         
-        if (!detection) {
-            // No face detected - could be 0 faces
+        if (!detections || detections.length === 0) {
             return { status: "NO_FACE", message: "No face detected! Please stay in frame." };
         }
 
-        // Multiple faces check (fall back to detectAll if single succeeds)
-        // Note: For performance, we usually only check single face landmarks
-        // but can periodically check for multiple faces.
-        
+        if (detections.length > 1) {
+            return { status: "MULTIPLE_FACES", message: "Multiple faces detected! Only the candidate should be in frame." };
+        }
+
+        const detection = detections[0];
+
         // Head Pose Estimation (Simple logic based on landmarks)
         const landmarks = detection.landmarks;
         const nose = landmarks.getNose()[3]; // Middle of nose
@@ -70,7 +71,6 @@ const proctoringService = {
         const rightEye = landmarks.getRightEye()[3];
         
         // Yaw (Horizontal rotation)
-        // If nose is too far from center of eyes, user is looking away
         const eyeCenter = (leftEye.x + rightEye.x) / 2;
         const faceWidth = rightEye.x - leftEye.x;
         const yawRatio = (nose.x - eyeCenter) / faceWidth;

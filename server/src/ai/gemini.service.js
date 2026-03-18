@@ -69,31 +69,43 @@ Return ONLY valid JSON in this exact format:
     const result = await model.generateContent(prompt);
     const text = result.response.text();
 
+    console.log("[AI Matching] Raw Response:", text); // Debugging log
+
     if (!text) throw new Error("Empty AI response");
 
+    // Robust JSON extraction from potential markdown blocks
+    const cleanJson = (str) => {
+      // Remove markdown code blocks if present
+      const match = str.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      const jsonStr = match ? match[1] : str;
+      return jsonStr.trim();
+    };
+
     try {
-      const parsed = JSON.parse(text);
+      const parsed = JSON.parse(cleanJson(text));
       // Ensure score is within valid range
+      if (typeof parsed.matchingScore !== 'number') parsed.matchingScore = Number(parsed.matchingScore) || 25;
       if (parsed.matchingScore < 0) parsed.matchingScore = 0;
       if (parsed.matchingScore > 100) parsed.matchingScore = 100;
       return parsed;
-    } catch {
-      // Fallback simple parsing if JSON mode fails
-      const match = text.match(/\{[\s\S]*\}/);
-      if (match) {
-        const parsed = JSON.parse(match[0]);
-        if (parsed.matchingScore < 0) parsed.matchingScore = 0;
-        if (parsed.matchingScore > 100) parsed.matchingScore = 100;
-        return parsed;
+    } catch (parseErr) {
+      console.error("[AI Matching] Parse Error:", parseErr, "Content:", text);
+      // Fallback: try to find any number that looks like a score if JSON fails
+      const scoreMatch = text.match(/"matchingScore":\s*(\d+)/);
+      if (scoreMatch) {
+        return { 
+          matchingScore: parseInt(scoreMatch[1], 10),
+          reason: "AI matching score extracted via regex after parse failure."
+        };
       }
-      throw new Error("AI returned invalid JSON");
+      throw new Error("AI returned invalid JSON: " + parseErr.message);
     }
   } catch (err) {
     console.error("Gemini Analyze Error:", err);
     // Fail gracefully with minimal score instead of 0
     return {
       matchingScore: 25,
-      reason: "AI analysis failed - default baseline score assigned",
+      reason: "AI analysis failed - default baseline score assigned. Error: " + err.message,
     };
   }
 };
